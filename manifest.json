@@ -1,0 +1,14 @@
+{
+  "name": "Bookmark SpellBook",
+  "version": "0.1",
+  "description": "Save a bookmark and wait for magic happens. :)",
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "options_page": "options.html",
+  "icons": { "128": "icon.png" },
+  "permissions": [
+    "bookmarks"
+  ],
+  "manifest_version": 2
+}
