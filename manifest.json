@@ -8,7 +8,10 @@
   "options_page": "options.html",
   "icons": { "128": "icon.png" },
   "permissions": [
-    "bookmarks"
+    "bookmarks",
+    "tabs",
+    "storage",
+    "*://*.dropbox.com/*"
   ],
   "manifest_version": 2
 }

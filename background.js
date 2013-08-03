@@ -1,3 +1,8 @@
+// global variable
+
+gContentWindow = undefined;
+gContentTab = undefined;
+
 // functions
 
 function extensionInstalled(details){
@@ -40,30 +45,43 @@ function bookmarkCreated(id, bookmark){
     var ArchiveFolderId = localStorage.getItem('ArchiveFolderId');
     if (bookmark.parentId === ArchiveFolderId) {
         console.log('spell added!');
-        var x = screen.width/2 - 300/2;
-        var y = screen.height/2 - 300/2;
+        var x = screen.width/2 - 480/2;
+        var y = screen.height/2 - 350/2;
 
-        content_url = chrome.extension.getURL('content.html');
-        window_spec = 'width=300,height=300,left='+x+',top='+y
-        
-        content_window = window.open(content_url, "", content_url);
-        content_window.addEventListener('load', function(){
-            chrome.tabs.query({'url':content_url}, function(results){
-            console.log('send bookmark to new opened window');
-            console.log(results)
-            if (results.length !== 0) {
-                    chrome.tabs.sendMessage(results[0].id, bookmark, function(response){
-                    console.log('get response from new opened window');
-                    console.log(response);
+        if (gContentWindow === undefined) {
+            console.log('create content window');
+            content_url = chrome.extension.getURL('content.html');
+            chrome.windows.create({url:content_url,type:'popup', width:480, height:350, left:x, top:y}, function(result_window){
+                gContentWindow = result_window;
+                chrome.tabs.query({'url':content_url}, function(results){
+                console.log('send bookmark to new opened window');
+                console.log(results)
+                if (results.length !== 0) {
+                            gContentTab = results[0];
+                            chrome.tabs.sendMessage(results[0].id, bookmark, function(response){
+                            console.log('get response from new opened window');
+                            console.log(response);
+                        });
+                    }
                 });
-            }
             });
-        });
+        } else {
+            console.log('set content window to focus');
+            chrome.windows.update(gContentWindow.id, {focused: true});
+            chrome.tabs.sendMessage(gContentTab.id, bookmark, function(response){
+                console.log('get response from new opened window');
+                console.log(response);
+            });
+        }
     }
 }
 
-function bookmarkChanged(id, changeInfo){
+function bookmarkChanged(id, bookmark){
     console.log('bookmark changed');
+}
+
+function bookmarkRemoved(id, bookmark){
+    console.log('bookmark removed');
 }
 
 function registerEvents(){
@@ -74,6 +92,8 @@ function registerEvents(){
     // Bookmark event
     chrome.bookmarks.onCreated.addListener(bookmarkCreated);
     chrome.bookmarks.onChanged.addListener(bookmarkChanged);
+    chrome.bookmarks.onMoved.addListener(bookmarkChanged);
+    chrome.bookmarks.onRemoved.addListener(bookmarkRemoved);
 }
 
 // Main

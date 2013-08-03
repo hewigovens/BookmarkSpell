@@ -1,20 +1,20 @@
 <!doctype html>
 <html>
 <head>
-<style>
-</style>
+<script src="js/lib/dropbox-datastores-0.1.0-b3.js"></script>
 <script src="content.js"></script>
 </head>
 <body>
-<div id="sounds"></div>
-<div id="attributions">
-Sounds from:
-<ul>
-<li><a href="http://www.freesound.org">www.freesound.org</a></li>
-<li><a href="http://www.free-samples-n-loops.com/loops.html">www.free-samples-n-loops.com/loops.html</a></li>
-<li>Googlers with microphones.*</li>
-</ul>
-<span style="font-size:10px">* Canadian sound made by actual Canadian.</span>
+<div>
+    <label>Title:<br><label id='title'></label></label><br>
+    <label>URL:<br><label id='url'></label></label><br>
+    <label>Tags:<br></label>
+    <input id='tags'><br>
+    <label>Notes:<br></label>
+    <textarea rows="4" cols="50">
+        Type your notes here
+    </textarea><br>
+    <input id='submit_button' type='button' value='OK'>
 </div>
 </body>
 </html>
