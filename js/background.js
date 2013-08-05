@@ -104,7 +104,9 @@ function messageHandler(request, sender, sendResponse){
                 message.short_url = data.short_url;
                 message.excerpt = data.excerpt;
                 message.content = data.content;
-                message.author = data.author;
+                if (data.author) {
+                    message.author = data.author;
+                }
                 if (gDataStore == undefined) {
                     var datastoreManager = gDBClient.getDatastoreManager ();
                     datastoreManager.openDefaultDatastore(function(error, datastore){
@@ -128,11 +130,13 @@ function messageHandler(request, sender, sendResponse){
 }
 
 function windowRemoved(window_id) {
-    if (window_id == gContentWindow.id) {
+    if (gContentWindow) {
+        if (window_id == gContentWindow.id) {
             console.log('<== content window closed');
             gContentWindow = undefined;
             gContentTab = undefined;
         }
+    }
 }
 
 function registerEvents() {
