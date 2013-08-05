@@ -3,6 +3,7 @@
 var gContentWindow = undefined;
 var gContentTab = undefined;
 var gDBClient = undefined;
+var gDataStore = undefined;
 
 // functions
 
@@ -90,6 +91,36 @@ function messageHandler(request, sender, sendResponse){
         console.log('<== handle message from contetn script:' + sender.tab.url);
         if (sender.tab.url === chrome.extension.getURL('content.html')) {
             console.log('<== expected bookmark with tags and notes');
+            parser_url = 'https://www.readability.com/api/content/v1/parser?url=' + request.url + '&token=' + '1164eaff0a68f11e7474de98f03c34fc8acf258c';
+            message = {
+                title: request.title,
+                url: request.url,
+                tags: request.tags,
+                notes: request.notes,
+                date_added: request.dateAdded
+            };
+            $.getJSON(parser_url).always(function(data){
+                console.log(data);
+                message.short_url = data.short_url;
+                message.excerpt = data.excerpt;
+                message.content = data.content;
+                message.author = data.author;
+                if (gDataStore == undefined) {
+                    var datastoreManager = gDBClient.getDatastoreManager ();
+                    datastoreManager.openDefaultDatastore(function(error, datastore){
+                        if (error) {
+                            console.log('==> open dropbox datastore failed:' + error);
+                        } else {
+                            gDataStore = datastore;
+                            var bookmarkTable = gDataStore.getTable('bookmarks');
+                            bookmarkTable.insert(message);
+                        }
+                    });
+                } else {
+                    var bookmarkTable = gDataStore.getTable('bookmarks');
+                    bookmarkTable.insert(message);
+                }
+            });
         }
     } else {
         console.log('<== handle message from extension');
@@ -131,7 +162,7 @@ function setup() {
     if (credentials) {
         gDBClient.setCredentials(JSON.parse(credentials));
     }
-    if (gDBCLient.isAuthenticated()) {
+    if (gDBClient.isAuthenticated()) {
         console.log('==> authenticated');
     } else {
         console.log('==> try authenticate');
