@@ -3,7 +3,7 @@
   "version": "0.1",
   "description": "Save a bookmark and wait for magic happens. :)",
   "background": {
-    "scripts": ["background.js"]
+    "page": "background.html"
   },
   "options_page": "options.html",
   "icons": { "128": "icon.png" },

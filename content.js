@@ -1,49 +1,34 @@
-// functions
-
-function buttonClicked() {
-    console.log('buttonClicked');
-}
-
-function insertDBDataStore(bookmark) {
-    var datastoreManager = client.getDatastoreManager();
-    datastoreManager.openDefaultDatastore(function(error, datastore) {
-        if (error) {
-            console.log('open default datastore failed: ' + error);
-        }
-        console.log(datastore);
-        var bookmarkTable = datastore.getTable('bookmarks');
-        var bookmark = bookmarkTable.insert(bookmark);
-        console.log(bookmark);    
-    }
-}
-
 // Main
 
-document.getElementById('submit_button').onclick = buttonClicked;
-
-var client = new Dropbox.Client({'key':'pgx3960nqyh983j'});
-client.authDriver(new Dropbox.AuthDriver.Chrome());
-
-chrome.extension.onMessage.addListener(function(message){
-    console.log(message);
-    console.log('receive bookmark ' + message.title + ' : ' + message.url);
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse){
+    console.log('==> content.js onMessage');
+    if (sender.url === document.URL) {
+        console.log("==> pass message sent by self");
+        return;
+    }
+    var message = request;
+    console.log('==> receive bookmark ' + message.title + ' : ' + message.url);
     var title = document.getElementById('title');
     title.innerText = message.title
 
     var url = document.getElementById('url');
     url.innerText = message.url;
 
-    if (client.isAuthenticated()) {
-        console.log('authenticated');
-        insertDBDataStore({'title': message.title,'url': message.url,'created': new Date()});
-    } else {
-        console.log('not authenticated');
-        client.authenticate(function(error, dbclient) {
-            if (error) {
-                console.log('authenticated failed: ' + error);
-            } else {
-                insertDBDataStore({'title': message.title,'url': message.url,'created': new Date()});                
-            }
-        }
+    document.getElementById('submit_button').onclick = function(){
+        console.log('send tags/note back to background');
+
+        var tags = document.getElementById('tags');
+        var notes = document.getElementById('notes');
+
+        message.tags = tags.value;
+        message.notes = tags.value;
+
+        chrome.runtime.sendMessage(message);
+
+        window.close();
+    };    
+
+    sendResponse('==> bookmark message received.');
     }
-});
+);
