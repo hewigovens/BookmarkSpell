@@ -3,7 +3,7 @@
 # Purpose: Pack a Chromium extension directory into crx format
 
 if test $# -ne 3; then
-  echo "Usage: crxmake.sh <extension dir> <pem path> <output>"
+  echo "Usage: `basename $0` <extension dir> <pem path> <output>"
   exit 1
 fi
 
@@ -40,4 +40,4 @@ sig_len_hex=$(byte_swap $(printf '%08x\n' $(ls -l "$sig" | awk '{print $5}')))
   echo "$crmagic_hex $version_hex $pub_len_hex $sig_len_hex" | xxd -r -p
   cat "$pub" "$sig" "$zip"
 ) > "$crx"
-echo "Wrote $crx"
+echo "Wrote extension to $crx"
