@@ -17,15 +17,9 @@ function helpClicked() {
     console.log('help clicked');
 }
 
-$(function() {
-    $('#recent_bookmarks').on('click', function() {
-        recentClicked();
-    });
-    $('#hosted_app').on('click', function() {
-        searchClicked();
-    });
-    $('#help').on('click', function() {
-        helpClicked();
-    });
-});
+window.addEventListener('load', function(){
+    document.getElementById('recent_bookmarks').onclick = recentClicked;
+    document.getElementById('hosted_app').onclick = helpClicked;
+    document.getElementById('help').onclick = searchClicked;
+}, false);
 
