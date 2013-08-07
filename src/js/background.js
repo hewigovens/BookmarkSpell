@@ -48,12 +48,12 @@ function bookmarkCreated(id, bookmark){
     if (bookmark.parentId === ArchiveFolderId) {
         console.log('spell added!');
         var x = screen.width/2 - 480/2;
-        var y = screen.height/2 - 350/2;
+        var y = screen.height/2 - 440/2;
 
         if (gContentWindow === undefined) {
             console.log('==> create content window');
             content_url = chrome.extension.getURL('content.html');
-            chrome.windows.create({url:content_url,type:'popup', width:480, height:350, left:x, top:y}, function(result_window){
+            chrome.windows.create({url:content_url,type:'popup', width:480, height:440, left:x, top:y}, function(result_window){
                 gContentWindow = result_window;
                 chrome.tabs.query({'url':content_url}, function(results){
                 console.log('==> send bookmark to new opened window');
@@ -104,6 +104,8 @@ function messageHandler(request, sender, sendResponse){
                 message.short_url = data.short_url;
                 message.excerpt = data.excerpt;
                 message.content = data.content;
+                message.domain = data.domain;
+                message.word_count = data.word_count;
                 if (data.author) {
                     message.author = data.author;
                 }

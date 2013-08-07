@@ -1,17 +1,20 @@
 <!doctype html>
 <html>
 <head>
-<script src="js/content.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/flat-ui.css">
+    <link rel="stylesheet" type="text/css" href="css/content.css">
 </head>
 <body>
-<div>
-    <label>Title:<br><label id='title'></label></label><br>
-    <label>URL:<br><label id='url'></label></label><br>
-    <label>Tags:<br></label>
-    <input id='tags' placeholder='separate,by,comma'><br>
-    <label>Notes:<br></label>
-    <textarea id='notes' rows="4" cols="50" placeholder='Type your notes here'></textarea><br>
-    <input id='submit_button' type='button' value='OK'>
-</div>
+    <div class="container">
+        <h2><label id='title'></label></h2>
+        <p><label id='url'></label></p>
+        <h3>Tags:</h3>
+        <input id='tags' placeholder='separate,by,comma'><br>
+        <h3>Notes:</h3>
+        <textarea id='notes' rows="4" cols="50" placeholder='Type your notes here'></textarea><br>
+        <input id='submit_button' class="btn btn-large btn-block btn-primary" type='button' value='OK'>
+    </div>
+
+    <script src="js/content.js"></script>
 </body>
 </html>

@@ -1,0 +1,42 @@
+blockquote {
+    margin: 0;
+    padding: 0;
+    padding: 13px 13px 21px 15px;
+    border-left: 5px #eeeeee;
+    margin-bottom: 18px;
+    font-style: italic;
+}
+blockquote:before {
+    content:"\201C";
+    font-size:35px;
+    margin-left:-10px;
+    color:#eee;
+}
+blockquote p {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 18px;
+    margin-bottom: 0;
+    font-style: italic;
+}
+
+.bookmark {
+    margin-left: 20px;
+}
+
+#excerpt {
+    font-size: 16px;
+}
+
+#reading_time {
+    margin-left: 10px;
+}
+
+#notes_container {
+    margin-left: 70%;
+}
+
+#tags {
+    margin-top: auto;
+    border: 0;
+}

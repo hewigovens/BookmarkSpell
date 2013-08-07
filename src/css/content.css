@@ -1,0 +1,12 @@
+body {
+    overflow: hidden;
+}
+
+#tags, #notes{
+    padding: 5px 11px;
+    min-width: 95%;
+}
+
+#submit_button {
+    min-width: 100%;  
+}

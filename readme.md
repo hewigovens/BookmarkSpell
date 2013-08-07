@@ -35,5 +35,8 @@ Bookmark Spell is a chrome extension, is an idea of bookmark based automator:
 
 ### Credit
 
-* SwitchySharp popup.css
+* Flat UI Kit
+* sprintf.js
+* SwitchySharp style
+* Mou.app style
 * [iconfinder.com](https://www.iconfinder.com/icondetails/111113/256/book_bookmark_icon)
