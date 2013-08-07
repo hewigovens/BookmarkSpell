@@ -29,5 +29,9 @@
     "*://*.readability.com/*"
   ],
   
+  "web_accessible_resources": [
+      "img/icon48.png"
+    ],
+
   "manifest_version": 2
 }

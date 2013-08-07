@@ -86,6 +86,15 @@ function bookmarkRemoved(id, bookmark){
     console.log('<== bookmark removed');
 }
 
+function showDesktopNotification(message){
+    if (window.webkitNotifications) {
+            var notification = webkitNotifications.createNotification('img/icon48.png','BookmarkSpell',message);
+            notification.show();
+    } else {
+        console.log(message);
+    }
+}
+
 function messageHandler(request, sender, sendResponse){
     if (sender.hasOwnProperty('tab')) {
         console.log('<== handle message from contetn script:' + sender.tab.url);
@@ -94,15 +103,21 @@ function messageHandler(request, sender, sendResponse){
             console.log(request);
             parser_url = sprintf('https://www.readability.com/api/content/v1/parser?url=%s&token=%s',
                                     escape(request.url), '1164eaff0a68f11e7474de98f03c34fc8acf258c');
+
+            raw_tags = request.tags.split(",");
+            tags = [];
+            $.each(raw_tags, function(index, value){
+                tags.push(value.trim());
+            });
             message = {
                 title: request.title,
                 url: request.url,
-                tags: request.tags,
+                tags: tags.toString(),
                 notes: request.notes,
                 date_added: request.dateAdded
             };
-            $.getJSON(parser_url).always(function(data){
-                console.log(data);
+
+            $.getJSON(parser_url).done(function(data) {
                 message.short_url = data.short_url;
                 message.excerpt = data.excerpt;
                 message.content = data.content;
@@ -111,11 +126,20 @@ function messageHandler(request, sender, sendResponse){
                 if (data.author) {
                     message.author = data.author;
                 }
+            }).fail(function(){
+                console.log('==> call readability parser API failed');
+            }).always(function(){
                 if (gDataStore) {
                     var bookmarkTable = gDataStore.getTable('bookmarks');
                     bookmarkTable.insert(message);
+                    if (message.short_url) {
+                        showDesktopNotification('Archived successfully.');
+                    } else {
+                        showDesktopNotification('Archived without readability...');
+                    }
                 } else {
                     console.log('==> datastore is not ready!');
+                    showDesktopNotification('Archive failed, Dropbox datastore is not ready.');
                 }
             });
         }

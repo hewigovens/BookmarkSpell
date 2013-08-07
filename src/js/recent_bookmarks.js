@@ -1,33 +1,10 @@
-gBookmarks = [
-    {
-        domain: "designmodo.github.io",
-        tags: "flat,ui,css",
-        word_count: 46,
-        excerpt: "Free HTML CSS JavaScript DOM jQuery XML AJAX RSS ASP . ... With CSS float, an element can be pushed to the left or right, allowing other ... The clear property specifies which sides of an element other floating elements are not allowed.",
-        notes: "Free HTML CSS JavaScript DOM jQuery XML AJAX RSS ASP . ... With CSS float, an element can be pushed to the left or right, allowing other ... The clear property specifies which sides of an element other floating elements are not allowed.",
-        url: "http://designmodo.github.io/Flat-UI/",
-        short_url: "http://rdd.me/w7qoq74p",
-        title: "Flat UI"
-    },
-    {
-        domain: "designmodo.github.io",
-        tags: "flat,ui,css",
-        word_count: 331,
-        excerpt: "Flat UI Free Web User Interface Kit",
-        notes: "Boostrap based",
-        url: "http://designmodo.github.io/Flat-UI/",
-        short_url: "http://rdd.me/w7qoq74p",
-        title: "Flat UI"
-    }
-]
-
 function DisplayBookmarks(bookmarks){
     $.each(bookmarks, function(index, object){
         var bookmark = $('<article class="bookmark"></article>');
         bookmark.append($(sprintf('<a id="url" href="%s" title="%s">from %s</a>', 
             object.url, object.title, object.domain)));
         var reading_time = parseInt(object.word_count/120);
-        if (reading_time == 0) {
+        if (reading_time == 0 || reading_time == NaN) {
             reading_item = 1;
         }
 
