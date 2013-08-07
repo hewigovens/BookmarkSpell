@@ -20,8 +20,18 @@ blockquote p {
     font-style: italic;
 }
 
+body { 
+    width: 100%; 
+}
+
+
 .bookmark {
     margin-left: 20px;
+}
+
+#bookmarks {
+    width: 700px;
+    margin: 0 auto;
 }
 
 #excerpt {
