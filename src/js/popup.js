@@ -1,20 +1,19 @@
 //Main
 
 function recentClicked() {
-    console.log('recent clicked, list recent 20 bookmarks');
-    chrome.bookmarks.getRecent(20, function(bookmarks){
-        for (var i = bookmarks.length - 1; i >= 0; i--) {
-            console.log(bookmarks[i]);
-        };
-    });
+    console.log('==> open recent bookmarks page');
+    chrome.runtime.sendMessage({action:'recent_bookmarks'});
+    window.close();
 }
 
 function searchClicked() {
     console.log('search clicked');
+    window.close();
 }
 
 function helpClicked() {
     console.log('help clicked');
+    window.close();
 }
 
 window.addEventListener('load', function(){

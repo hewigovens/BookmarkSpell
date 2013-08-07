@@ -109,25 +109,50 @@ function messageHandler(request, sender, sendResponse){
                 if (data.author) {
                     message.author = data.author;
                 }
-                if (gDataStore == undefined) {
-                    var datastoreManager = gDBClient.getDatastoreManager ();
-                    datastoreManager.openDefaultDatastore(function(error, datastore){
-                        if (error) {
-                            console.log('==> open dropbox datastore failed:' + error);
-                        } else {
-                            gDataStore = datastore;
-                            var bookmarkTable = gDataStore.getTable('bookmarks');
-                            bookmarkTable.insert(message);
-                        }
-                    });
-                } else {
+                if (gDataStore) {
                     var bookmarkTable = gDataStore.getTable('bookmarks');
                     bookmarkTable.insert(message);
+                } else {
+                    console.log('==> datastore is not ready!');
                 }
             });
         }
     } else {
         console.log('<== handle message from extension');
+        try {
+            var action_page = chrome.extension.getURL(request.action) + '.html';
+            chrome.tabs.create({url:action_page}, function(tab){
+                chrome.tabs.query({'url':action_page}, function(results){
+                    if (results.length == 0) {
+                        return;
+                    }
+                    if (gDBClient.isAuthenticated()) {
+                        if (gDataStore) {
+                            var bookmarkTable = gDataStore.getTable('bookmarks');
+                            //limit to 20
+                            var results = bookmarkTable.query();
+                            var bookmarks = [];
+                            $.each(results, function(index, object){
+                                var bookmark = object.getFields();
+                                if (bookmark.short_url) {
+                                    bookmarks.push(bookmark);
+                                }
+                            });
+                            chrome.tabs.sendMessage(tab.id, bookmarks, function(response){
+                                console.log('<== get response:'+response);
+                            });
+                        } else {
+                            console.log('==> datastore is not ready!');
+                        }
+                    } else {
+                        gDBClient.authenticate();
+                    }
+                });
+            });
+        }
+        catch(e) {
+            console.log(e);
+        }
     }
 }
 
@@ -149,7 +174,7 @@ function registerEvents() {
     // Bookmark event
     chrome.bookmarks.onCreated.addListener(bookmarkCreated);
     chrome.bookmarks.onChanged.addListener(bookmarkChanged);
-    chrome.bookmarks.onMoved.addListener(bookmarkChanged);
+    chrome.bookmarks.onMoved.addListener(bookmarkCreated);
     chrome.bookmarks.onRemoved.addListener(bookmarkRemoved);
 
     // Window event
@@ -170,6 +195,14 @@ function setup() {
     }
     if (gDBClient.isAuthenticated()) {
         console.log('==> authenticated');
+        var datastoreManager = gDBClient.getDatastoreManager ();
+        datastoreManager.openDefaultDatastore(function(error, datastore){
+        if (error) {
+            console.log('==> open dropbox datastore failed:' + error);
+        } else {
+            gDataStore = datastore;
+        }});
+
     } else {
         console.log('==> try authenticate');
         gDBClient.authenticate(function(error, client){
@@ -178,6 +211,13 @@ function setup() {
                 return;
             } else {
                 localStorage.setItem('DropboxOAuth', JSON.stringify(client.credentials()));
+                var datastoreManager = gDBClient.getDatastoreManager ();
+                datastoreManager.openDefaultDatastore(function(error, datastore){
+                if (error) {
+                    console.log('==> open dropbox datastore failed:' + error);
+                } else {
+                    gDataStore = datastore;
+                }});
             }
         });
     }

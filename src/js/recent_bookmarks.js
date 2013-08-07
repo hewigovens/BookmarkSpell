@@ -21,8 +21,8 @@ gBookmarks = [
     }
 ]
 
-function DisplayBookmarks(){
-    $.each(gBookmarks, function(index, object){
+function DisplayBookmarks(bookmarks){
+    $.each(bookmarks, function(index, object){
         var bookmark = $('<article class="bookmark"></article>');
         bookmark.append($(sprintf('<a id="url" href="%s" title="%s">from %s</a>', 
             object.url, object.title, object.domain)));
@@ -50,6 +50,9 @@ function DisplayBookmarks(){
     });
 }
 
-$(document).ready(function(){
-    DisplayBookmarks();
-});
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse){
+      console.log(request);
+      DisplayBookmarks(request);
+      sendResponse('recent_bookmars page received bookmarks');
+  });
