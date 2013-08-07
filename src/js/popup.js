@@ -8,7 +8,7 @@ function recentClicked() {
 
 function searchClicked() {
     console.log('search clicked');
-    window.close();
+    chrome.tabs.create({url:'chrome://bookmarks/'}, function(tab){console.log(tab);});
 }
 
 function helpClicked() {
@@ -18,7 +18,7 @@ function helpClicked() {
 
 window.addEventListener('load', function(){
     document.getElementById('recent_bookmarks').onclick = recentClicked;
-    document.getElementById('hosted_app').onclick = helpClicked;
-    document.getElementById('help').onclick = searchClicked;
+    document.getElementById('hosted_app').onclick = searchClicked;
+    document.getElementById('help').onclick = helpClicked;
 }, false);
 
