@@ -22,7 +22,7 @@ chrome.runtime.onMessage.addListener(
         var notes = document.getElementById('notes');
 
         message.tags = tags.value;
-        message.notes = tags.value;
+        message.notes = notes.value;
 
         chrome.runtime.sendMessage(message);
 

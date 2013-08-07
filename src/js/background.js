@@ -91,7 +91,9 @@ function messageHandler(request, sender, sendResponse){
         console.log('<== handle message from contetn script:' + sender.tab.url);
         if (sender.tab.url === chrome.extension.getURL('content.html')) {
             console.log('<== expected bookmark with tags and notes');
-            parser_url = 'https://www.readability.com/api/content/v1/parser?url=' + request.url + '&token=' + '1164eaff0a68f11e7474de98f03c34fc8acf258c';
+            console.log(request);
+            parser_url = sprintf('https://www.readability.com/api/content/v1/parser?url=%s&token=%s',
+                                    escape(request.url), '1164eaff0a68f11e7474de98f03c34fc8acf258c');
             message = {
                 title: request.title,
                 url: request.url,
@@ -135,7 +137,7 @@ function messageHandler(request, sender, sendResponse){
                             $.each(results, function(index, object){
                                 var bookmark = object.getFields();
                                 if (bookmark.short_url) {
-                                    bookmarks.push(bookmark);
+                                    bookmarks.unshift(bookmark);
                                 }
                             });
                             chrome.tabs.sendMessage(tab.id, bookmarks, function(response){
@@ -194,7 +196,7 @@ function setup() {
         gDBClient.setCredentials(JSON.parse(credentials));
     }
     if (gDBClient.isAuthenticated()) {
-        console.log('==> authenticated');
+        console.log('==> dropbox authenticated');
         var datastoreManager = gDBClient.getDatastoreManager ();
         datastoreManager.openDefaultDatastore(function(error, datastore){
         if (error) {
@@ -204,7 +206,7 @@ function setup() {
         }});
 
     } else {
-        console.log('==> try authenticate');
+        console.log('==> try authenticate dropbox');
         gDBClient.authenticate(function(error, client){
             if (error) {
                 console.log('==> authenticate failed:' + error);

@@ -24,6 +24,7 @@
     "bookmarks",
     "tabs",
     "storage",
+    "notifications",
     "*://*.dropbox.com/*",
     "*://*.readability.com/*"
   ],
