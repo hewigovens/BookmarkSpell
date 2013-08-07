@@ -30,6 +30,11 @@ function DisplayBookmarks(bookmarks){
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse){
       console.log(request);
+      localStorage.setItem('RecentBookmarks', JSON.stringify(request));
       DisplayBookmarks(request);
       sendResponse('recent_bookmars page received bookmarks');
-  });
+});
+
+setTimeout(function(){
+   DisplayBookmarks(JSON.parse(localStorage.getItem('RecentBookmarks'))); 
+},2000);

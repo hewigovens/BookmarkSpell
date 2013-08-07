@@ -84,12 +84,25 @@ function bookmarkChanged(id, bookmark){
 
 function bookmarkRemoved(id, bookmark){
     console.log('<== bookmark removed');
+    console.log(bookmark);
+    console.log(id);
+    if (gDataStore) {
+        var bookmarkTable = gDataStore.getTable('bookmarks');
+        var results = bookmarkTable.query({chrome_id:id});
+        $.each(results, function(index, object){
+            console.log(object);
+            object.deleteRecord();
+        });
+    }
 }
 
 function showDesktopNotification(message){
     if (window.webkitNotifications) {
             var notification = webkitNotifications.createNotification('img/icon48.png','BookmarkSpell',message);
             notification.show();
+            setTimeout(function(){
+                notification.cancel();
+            },2000);
     } else {
         console.log(message);
     }
@@ -114,7 +127,8 @@ function messageHandler(request, sender, sendResponse){
                 url: request.url,
                 tags: tags.toString(),
                 notes: request.notes,
-                date_added: request.dateAdded
+                date_added: request.dateAdded,
+                chrome_id: request.id
             };
 
             $.getJSON(parser_url).done(function(data) {
