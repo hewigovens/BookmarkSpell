@@ -40,7 +40,6 @@ chrome.runtime.onMessage.addListener(
           return;
       }
       console.log(request);
-      //localStorage.setItem('RecentBookmarks', JSON.stringify(request));
       DisplayBookmarks(request);
       sendResponse('recent_bookmars page received bookmarks');
 });

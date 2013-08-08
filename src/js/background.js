@@ -109,17 +109,7 @@ function showDesktopNotification(message){
 }
 
 function loadRecentBookmarks(){
-    var bookmarkTable = gDataStore.getTable('bookmarks');
-    //limit to 20
-    var results = bookmarkTable.query();
-    var bookmarks = [];
-    $.each(results, function(index, object){
-        var bookmark = object.getFields();
-        if (bookmark.short_url) {
-            bookmarks.unshift(bookmark);
-        }
-    });
-    return bookmarks;
+    return JSON.parse(localStorage.getItem('RecentBookmarks'))
 }
 
 function messageHandler(request, sender, sendResponse){
@@ -213,6 +203,25 @@ function windowRemoved(window_id) {
     }
 }
 
+function DBDataStoreChanged(){
+    console.log("<== dropbox datastore changed, update localStorage");
+    updateLocalStorage();
+}
+
+function updateLocalStorage(){
+    var bookmarkTable = gDataStore.getTable('bookmarks');
+    //XXXXXX limit to 20
+    var results = bookmarkTable.query();
+    var bookmarks = [];
+    $.each(results, function(index, object){
+        var bookmark = object.getFields();
+        if (bookmark.short_url) {
+            bookmarks.unshift(bookmark);
+        }
+    });
+    localStorage.setItem('RecentBookmarks', JSON.stringify(bookmarks));
+}
+
 function registerEvents() {
 
     // Install event
@@ -248,6 +257,8 @@ function setup() {
             console.log('==> open dropbox datastore failed:' + error);
         } else {
             gDataStore = datastore;
+            gDataStore.recordsChanged.addListener(DBDataStoreChanged);
+            updateLocalStorage();
         }});
 
     } else {
@@ -264,6 +275,8 @@ function setup() {
                     console.log('==> open dropbox datastore failed:' + error);
                 } else {
                     gDataStore = datastore;
+                    gDataStore.recordsChanged.addListener(DBDataStoreChanged);
+                    updateLocalStorage();
                 }});
             }
         });
