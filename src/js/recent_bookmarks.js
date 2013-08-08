@@ -1,12 +1,12 @@
 function DisplayBookmarks(bookmarks){
 
-    var old_bookmarks = $('article');
+    var old_bookmarks = $('li');
     $.each(old_bookmarks, function(index, object){
       object.remove();
     });
 
     $.each(bookmarks, function(index, object){
-        var bookmark = $('<article class="bookmark"></article>');
+        var bookmark = $('<li class="bookmark"></li>');
         bookmark.append($(sprintf('<a id="url" href="%s" title="%s">from %s</a>', 
             object.url, object.title, object.domain)));
         var reading_time = parseInt(object.word_count/120);
@@ -27,7 +27,7 @@ function DisplayBookmarks(bookmarks){
         excerpt.append(more);
 
         bookmark.append(excerpt);
-        bookmark.append($(sprintf('<div class="content" hidden>%s</div>', object.content)));
+        bookmark.append($(sprintf('<div class="content" hidden>%s<div class="clearfix"></div></div>', object.content)));
 
         bookmark.append($(sprintf('<blockquote><p>%s</p></blockquote>', object.notes)));
         
