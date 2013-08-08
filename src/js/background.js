@@ -88,7 +88,7 @@ function bookmarkRemoved(id, bookmark){
     console.log(id);
     if (gDataStore) {
         var bookmarkTable = gDataStore.getTable('bookmarks');
-        var results = bookmarkTable.query({chrome_id:id});
+        var results = bookmarkTable.query({chrome_id:sprintf("%s_%s", bookmark.parentId, id)});
         $.each(results, function(index, object){
             console.log(object);
             object.deleteRecord();
@@ -128,7 +128,7 @@ function messageHandler(request, sender, sendResponse){
                 tags: tags.toString(),
                 notes: request.notes,
                 date_added: request.dateAdded,
-                chrome_id: request.id
+                chrome_id: sprintf("%s_%s", request.parentId, request.id)
             };
 
             $.getJSON(parser_url).done(function(data) {
