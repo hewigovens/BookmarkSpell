@@ -2,9 +2,14 @@ body {
     overflow: hidden;
 }
 
+#content_container {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
 #tags, #notes{
     padding: 5px 11px;
-    min-width: 95%;
+    min-width: 98%;
 }
 
 #submit_button {

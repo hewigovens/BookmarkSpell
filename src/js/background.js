@@ -80,12 +80,27 @@ function bookmarkCreated(id, bookmark){
 
 function bookmarkChanged(id, bookmark){
     console.log('<== bookmark changed');
+    chrome.bookmarks.get(id, function(results){
+        $.each(results, function(index, bookmark){
+            if (bookmark.parentId === '1' && !bookmark.hasOwnProperty('url')) {
+                updateBookmarkBarFolders();
+                return false;
+            }
+        });
+    });
 }
 
 function bookmarkRemoved(id, bookmark){
     console.log('<== bookmark removed');
     console.log(bookmark);
     console.log(id);
+    var folders = JSON.parse(localStorage.getItem('BookmarkBarFolders'));
+    if (folders[id]) {
+        console.log('==> bookmark bar folders removed');
+        delete folders[id];
+        localStorage.setItem('BookmarkBarFolders', JSON.stringify(folders));
+        return;
+    };
     if (gDataStore) {
         var bookmarkTable = gDataStore.getTable('bookmarks');
         var results = bookmarkTable.query({chrome_id:sprintf("%s_%s", bookmark.parentId, id)});
@@ -164,23 +179,6 @@ function messageHandler(request, sender, sendResponse){
         if (request.action_page) {
             var action_page = chrome.extension.getURL(request.action_page);
             chrome.tabs.create({url:action_page}, function(tab){
-                // chrome.tabs.query({'url':action_page}, function(results){
-                //     if (results.length == 0) {
-                //         return;
-                //     }
-                //     if (gDBClient.isAuthenticated()) {
-                //         if (gDataStore) {
-                //             var bookmarks = loadRecentBookmarks();
-                //             chrome.tabs.sendMessage(tab.id, bookmarks, function(response){
-                //                 console.log('<== get response:'+response);
-                //             });
-                //         } else {
-                //             console.log('==> datastore is not ready!');
-                //         }
-                //     } else {
-                //         gDBClient.authenticate();
-                //     }
-                // });
             });
         } 
     } else if (request.from === chrome.extension.getURL('recent_bookmarks.html')) {
@@ -206,10 +204,10 @@ function windowRemoved(window_id) {
 
 function DBDataStoreChanged(){
     console.log("<== dropbox datastore changed, update localStorage");
-    updateLocalStorage();
+    updateRecentBookmarks();
 }
 
-function updateLocalStorage(){
+function updateRecentBookmarks(){
     var bookmarkTable = gDataStore.getTable('bookmarks');
     //XXXXXX limit to 20
     var results = bookmarkTable.query();
@@ -221,6 +219,19 @@ function updateLocalStorage(){
         }
     });
     localStorage.setItem('RecentBookmarks', JSON.stringify(bookmarks));
+}
+
+function updateBookmarkBarFolders() {
+    chrome.bookmarks.getSubTree('1',function(results) {
+        var bookmark_bar = results[0].children;
+        var folders = {};
+        $.each(bookmark_bar, function(index, bookmark){
+            if (bookmark.hasOwnProperty('children')) {
+                folders[bookmark.id] = bookmark.title;
+            }
+        });
+        localStorage.setItem('BookmarkBarFolders', JSON.stringify(folders));
+    });
 }
 
 function registerEvents() {
@@ -243,6 +254,10 @@ function registerEvents() {
 }
 
 function setup() {
+
+    
+    updateBookmarkBarFolders();
+
     gDBClient = new Dropbox.Client({'key': 'pgx3960nqyh983j'});
     gDBClient.authDriver(new Dropbox.AuthDriver.Chrome());
 
@@ -259,7 +274,7 @@ function setup() {
         } else {
             gDataStore = datastore;
             gDataStore.recordsChanged.addListener(DBDataStoreChanged);
-            updateLocalStorage();
+            updateRecentBookmarks();
         }});
 
     } else {
@@ -277,7 +292,7 @@ function setup() {
                 } else {
                     gDataStore = datastore;
                     gDataStore.recordsChanged.addListener(DBDataStoreChanged);
-                    updateLocalStorage();
+                    updateRecentBookmarks();
                 }});
             }
         });

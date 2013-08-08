@@ -1,13 +1,16 @@
 <!doctype html>
 <html>
 <head>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/css/bootstrap.css" >
     <link rel="stylesheet" type="text/css" href="css/flat-ui.css">
     <link rel="stylesheet" type="text/css" href="css/content.css">
 </head>
 <body>
-    <div class="container">
+    <div id='content_container'>
         <h2><label id='title'></label></h2>
         <p><label id='url'></label></p>
+        <select id='folder_select' name="folder_list" value="Archive" class="select-block span3" style="display: none;">
+        </select>
         <h3>Tags:</h3>
         <input id='tags' placeholder='separate,by,comma'><br>
         <h3>Notes:</h3>
@@ -15,6 +18,10 @@
         <input id='submit_button' class="btn btn-large btn-block btn-primary" type='button' value='OK'>
     </div>
 
+    <script src="js/lib/jquery-2.0.3.min.js"></script>
+    <script src="js/lib/bootstrap.min.js"></script>
+    <script src="js/lib/bootstrap-select.js"></script>
+    <script src="js/lib/sprintf.min.js"></script>
     <script src="js/content.js"></script>
 </body>
 </html>
