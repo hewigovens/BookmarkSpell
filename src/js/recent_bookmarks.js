@@ -18,7 +18,17 @@ function DisplayBookmarks(bookmarks){
         bookmark.append($(sprintf('<h2><a id="title" href="%s" title="%s">%s</a></h2>', 
             object.url, object.title, object.title)));
         
-        bookmark.append($(sprintf('<p id="excerpt">%s</p>', object.excerpt)));
+        var excerpt = $(sprintf('<p id="excerpt">%s</p>', object.excerpt));
+        var more = $('<a> read more</a>');
+        more.on('click', function(){
+            var content = bookmark.find('.content');
+            content.toggle();
+        });
+        excerpt.append(more);
+
+        bookmark.append(excerpt);
+        bookmark.append($(sprintf('<div class="content" hidden>%s</div>', object.content)));
+
         bookmark.append($(sprintf('<blockquote><p>%s</p></blockquote>', object.notes)));
         
         var tags = object.tags.split(',');
