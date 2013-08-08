@@ -2,7 +2,7 @@
 
 function recentClicked() {
     console.log('==> open recent bookmarks page');
-    chrome.runtime.sendMessage({action:'recent_bookmarks'});
+    chrome.runtime.sendMessage({action_page:'recent_bookmarks.html', from: document.URL});
     window.close();
 }
 

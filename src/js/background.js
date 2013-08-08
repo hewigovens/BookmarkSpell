@@ -108,90 +108,97 @@ function showDesktopNotification(message){
     }
 }
 
+function loadRecentBookmarks(){
+    var bookmarkTable = gDataStore.getTable('bookmarks');
+    //limit to 20
+    var results = bookmarkTable.query();
+    var bookmarks = [];
+    $.each(results, function(index, object){
+        var bookmark = object.getFields();
+        if (bookmark.short_url) {
+            bookmarks.unshift(bookmark);
+        }
+    });
+    return bookmarks;
+}
+
 function messageHandler(request, sender, sendResponse){
-    if (sender.hasOwnProperty('tab')) {
-        console.log('<== handle message from contetn script:' + sender.tab.url);
-        if (sender.tab.url === chrome.extension.getURL('content.html')) {
-            console.log('<== expected bookmark with tags and notes');
-            console.log(request);
-            parser_url = sprintf('https://www.readability.com/api/content/v1/parser?url=%s&token=%s',
-                                    escape(request.url), '1164eaff0a68f11e7474de98f03c34fc8acf258c');
+    console.log(request);
+    // receive bookmark with tags/notes
+    if (request.from === chrome.extension.getURL('content.html')) {
+        console.log('<== expected bookmark with tags and notes');
+        parser_url = sprintf('https://www.readability.com/api/content/v1/parser?url=%s&token=%s',
+                                escape(request.url), '1164eaff0a68f11e7474de98f03c34fc8acf258c');
 
-            raw_tags = request.tags.split(",");
-            tags = [];
-            $.each(raw_tags, function(index, value){
-                tags.push(value.trim());
-            });
-            message = {
-                title: request.title,
-                url: request.url,
-                tags: tags.toString(),
-                notes: request.notes,
-                date_added: request.dateAdded,
-                chrome_id: sprintf("%s_%s", request.parentId, request.id)
-            };
+        raw_tags = request.tags.split(",");
+        tags = [];
+        $.each(raw_tags, function(index, value){
+            tags.push(value.trim());
+        });
+        message = {
+            title: request.title,
+            url: request.url,
+            tags: tags.toString(),
+            notes: request.notes,
+            date_added: request.dateAdded,
+            chrome_id: sprintf("%s_%s", request.parentId, request.id)
+        };
 
-            $.getJSON(parser_url).done(function(data) {
-                message.short_url = data.short_url;
-                message.excerpt = data.excerpt;
-                message.content = data.content;
-                message.domain = data.domain;
-                message.word_count = data.word_count;
-                if (data.author) {
-                    message.author = data.author;
-                }
-            }).fail(function(){
-                console.log('==> call readability parser API failed');
-            }).always(function(){
-                if (gDataStore) {
-                    var bookmarkTable = gDataStore.getTable('bookmarks');
-                    bookmarkTable.insert(message);
-                    if (message.short_url) {
-                        showDesktopNotification('Archived successfully.');
-                    } else {
-                        showDesktopNotification('Archived without readability...');
-                    }
+        $.getJSON(parser_url).done(function(data) {
+            message.short_url = data.short_url;
+            message.excerpt = data.excerpt;
+            message.content = data.content;
+            message.domain = data.domain;
+            message.word_count = data.word_count;
+            if (data.author) {
+                message.author = data.author;
+            }
+        }).fail(function(){
+            console.log('==> call readability parser API failed');
+        }).always(function(){
+            if (gDataStore) {
+                var bookmarkTable = gDataStore.getTable('bookmarks');
+                bookmarkTable.insert(message);
+                if (message.short_url) {
+                    showDesktopNotification('Archived successfully.');
                 } else {
-                    console.log('==> datastore is not ready!');
-                    showDesktopNotification('Archive failed, Dropbox datastore is not ready.');
+                    showDesktopNotification('Archived without readability...');
                 }
-            });
-        }
-    } else {
-        console.log('<== handle message from extension');
-        try {
-            var action_page = chrome.extension.getURL(request.action) + '.html';
+            } else {
+                console.log('==> datastore is not ready!');
+                showDesktopNotification('Archive failed, Dropbox datastore is not ready.');
+            }
+        });
+    } else if (request.from === chrome.extension.getURL('popup.html')) {
+        if (request.action_page) {
+            var action_page = chrome.extension.getURL(request.action_page);
             chrome.tabs.create({url:action_page}, function(tab){
-                chrome.tabs.query({'url':action_page}, function(results){
-                    if (results.length == 0) {
-                        return;
-                    }
-                    if (gDBClient.isAuthenticated()) {
-                        if (gDataStore) {
-                            var bookmarkTable = gDataStore.getTable('bookmarks');
-                            //limit to 20
-                            var results = bookmarkTable.query();
-                            var bookmarks = [];
-                            $.each(results, function(index, object){
-                                var bookmark = object.getFields();
-                                if (bookmark.short_url) {
-                                    bookmarks.unshift(bookmark);
-                                }
-                            });
-                            chrome.tabs.sendMessage(tab.id, bookmarks, function(response){
-                                console.log('<== get response:'+response);
-                            });
-                        } else {
-                            console.log('==> datastore is not ready!');
-                        }
-                    } else {
-                        gDBClient.authenticate();
-                    }
-                });
+                // chrome.tabs.query({'url':action_page}, function(results){
+                //     if (results.length == 0) {
+                //         return;
+                //     }
+                //     if (gDBClient.isAuthenticated()) {
+                //         if (gDataStore) {
+                //             var bookmarks = loadRecentBookmarks();
+                //             chrome.tabs.sendMessage(tab.id, bookmarks, function(response){
+                //                 console.log('<== get response:'+response);
+                //             });
+                //         } else {
+                //             console.log('==> datastore is not ready!');
+                //         }
+                //     } else {
+                //         gDBClient.authenticate();
+                //     }
+                // });
             });
-        }
-        catch(e) {
-            console.log(e);
+        } 
+    } else if (request.from === chrome.extension.getURL('recent_bookmarks.html')) {
+        console.log('<== expected loadBookmarks');
+        if (request.action === 'loadBookmarks') {
+            var bookmarks = loadRecentBookmarks();
+            chrome.tabs.sendMessage(request.from_tab_id, bookmarks, function(response){
+                console.log('<== get response: ' + response);
+            });
         }
     }
 }

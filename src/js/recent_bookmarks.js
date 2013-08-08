@@ -1,4 +1,10 @@
 function DisplayBookmarks(bookmarks){
+
+    var old_bookmarks = $('article');
+    $.each(old_bookmarks, function(index, object){
+      object.remove();
+    });
+
     $.each(bookmarks, function(index, object){
         var bookmark = $('<article class="bookmark"></article>');
         bookmark.append($(sprintf('<a id="url" href="%s" title="%s">from %s</a>', 
@@ -29,12 +35,24 @@ function DisplayBookmarks(bookmarks){
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse){
+      if (sender.url === document.URL) {
+          console.log("==> pass message sent by self");
+          return;
+      }
       console.log(request);
-      localStorage.setItem('RecentBookmarks', JSON.stringify(request));
+      //localStorage.setItem('RecentBookmarks', JSON.stringify(request));
       DisplayBookmarks(request);
       sendResponse('recent_bookmars page received bookmarks');
 });
 
-setTimeout(function(){
-   DisplayBookmarks(JSON.parse(localStorage.getItem('RecentBookmarks'))); 
-},2000);
+// setTimeout(function(){
+//    DisplayBookmarks(JSON.parse(localStorage.getItem('RecentBookmarks'))); 
+// },2000);
+
+$(document).on('ready', function(){
+    console.log('==> document.ready');
+    chrome.tabs.getCurrent(function(tab){
+        console.log('==> query bookmarks form backgroud.js');
+        chrome.runtime.sendMessage({action:'loadBookmarks', from:document.URL, from_tab_id:tab.id});
+    });
+});
