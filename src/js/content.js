@@ -24,6 +24,8 @@ chrome.runtime.onMessage.addListener(
         message.tags = tags.value;
         message.notes = notes.value;
 
+        message.from = document.URL;
+
         chrome.runtime.sendMessage(message);
 
         window.close();

@@ -113,6 +113,7 @@ function loadRecentBookmarks(){
 }
 
 function messageHandler(request, sender, sendResponse){
+    console.log('<== handle message from: ' + request.from);
     console.log(request);
     // receive bookmark with tags/notes
     if (request.from === chrome.extension.getURL('content.html')) {
