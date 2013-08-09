@@ -44,8 +44,17 @@ function extensionInstalled(details){
 function bookmarkCreated(id, bookmark){
     console.log('<== bookmark created');
     console.log(bookmark);
-    //var ArchiveFolderId = localStorage.getItem('ArchiveFolderId');
-    //if (bookmark.parentId === ArchiveFolderId) {
+    if (bookmark.url == undefined) {
+        return;
+    } else {
+        var bookmarkTable = gDataStore.getTable('bookmarks');
+
+        var results = bookmarkTable.query({url:bookmark.url});
+        if (results.length == 0) {
+            return;
+        }
+    }
+
     var folders = JSON.parse(localStorage.getItem('BookmarkBarFolders'));
     if (folders[bookmark.parentId]) {
         console.log('spell added!');
