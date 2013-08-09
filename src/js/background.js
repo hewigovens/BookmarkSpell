@@ -192,7 +192,8 @@ function messageHandler(request, sender, sendResponse){
                 console.log('<== get response: ' + response);
             });
         } else if (request.action === 'removeBookmark') {
-            removeBookmarkFromDB(request.remove_id);
+            var ids = request.remove_id.split('_');
+            chrome.bookmarks.remove(ids[1]);
         }
     }
 }
