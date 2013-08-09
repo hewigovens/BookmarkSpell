@@ -164,6 +164,8 @@ function messageHandler(request, sender, sendResponse){
             }
         }).fail(function(){
             console.log('==> call readability parser API failed');
+            var a = document.createElement('a');
+            message.domain = a.host;
         }).always(function(){
             if (gDataStore) {
                 var bookmarkTable = gDataStore.getTable('bookmarks');
@@ -229,7 +231,7 @@ function updateRecentBookmarks(){
     var bookmarks = [];
     $.each(results, function(index, object){
         var bookmark = object.getFields();
-        if (bookmark.short_url) {
+        if (bookmark.url) {
             bookmarks.unshift(bookmark);
         }
     });
@@ -257,7 +259,6 @@ function registerEvents() {
     // Bookmark event
     chrome.bookmarks.onCreated.addListener(bookmarkCreated);
     chrome.bookmarks.onChanged.addListener(bookmarkChanged);
-    chrome.bookmarks.onMoved.addListener(bookmarkCreated);
     chrome.bookmarks.onRemoved.addListener(bookmarkRemoved);
 
     // Window event

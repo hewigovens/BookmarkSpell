@@ -10,8 +10,8 @@ function DisplayBookmarks(bookmarks){
         bookmark.append($(sprintf('<a id="url" href="%s" title="%s">from %s</a>', 
             object.url, object.title, object.domain)));
         var reading_time = parseInt(object.word_count/120);
-        if (reading_time == 0 || reading_time == NaN) {
-            reading_item = 1;
+        if (reading_time == 0 || isNaN(reading_time)) {
+            reading_time = 1;
         }
 
         bookmark.append($(sprintf('<span id="reading_time" class="reading-time">%d min read</span>', reading_time)));
@@ -28,21 +28,24 @@ function DisplayBookmarks(bookmarks){
         bookmark.append($(sprintf('<h2><a id="title" href="%s" title="%s">%s</a></h2>', 
             object.url, object.title, object.title)));
         
-        var excerpt = $(sprintf('<p id="excerpt">%s</p>', object.excerpt));
+        
+        if (object.excerpt) {
+            var excerpt = $(sprintf('<p id="excerpt">%s</p>', object.excerpt));
 
-        if (object.content) {
-            var more = $('<a> read more</a>');
-            more.on('click', function(){
-                var content = bookmark.find('.content');
-                content.toggle();
-            });
-            excerpt.append(more);
+            if (object.content) {
+                var more = $('<a> read more</a>');
+                more.on('click', function(){
+                    var content = bookmark.find('.content');
+                    content.toggle();
+                });
+                excerpt.append(more);
 
-            bookmark.append(excerpt);
-            bookmark.append($(sprintf('<div class="content" hidden>%s<div class="clearfix"></div></div>', object.content)));
+                bookmark.append(excerpt);
+                bookmark.append($(sprintf('<div class="content" hidden>%s<div class="clearfix"></div></div>', object.content)));
 
-        } else {
-            bookmark.append(excerpt);
+            } else {
+                bookmark.append(excerpt);
+            }
         }
         
         bookmark.append($(sprintf('<blockquote><p>%s</p></blockquote>', object.notes)));
