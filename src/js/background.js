@@ -44,16 +44,18 @@ function extensionInstalled(details){
 function bookmarkCreated(id, bookmark){
     console.log('<== bookmark created');
     console.log(bookmark);
-    var ArchiveFolderId = localStorage.getItem('ArchiveFolderId');
-    if (bookmark.parentId === ArchiveFolderId) {
+    //var ArchiveFolderId = localStorage.getItem('ArchiveFolderId');
+    //if (bookmark.parentId === ArchiveFolderId) {
+    var folders = JSON.parse(localStorage.getItem('BookmarkBarFolders'));
+    if (folders[bookmark.parentId]) {
         console.log('spell added!');
-        var x = screen.width/2 - 480/2;
-        var y = screen.height/2 - 440/2;
+        var x = screen.width/2 - 516/2;
+        var y = screen.height/2 - 476/2;
 
         if (gContentWindow === undefined) {
             console.log('==> create content window');
             content_url = chrome.extension.getURL('content.html');
-            chrome.windows.create({url:content_url,type:'popup', width:480, height:440, left:x, top:y}, function(result_window){
+            chrome.windows.create({url:content_url,type:'popup', width:516, height:476, left:x, top:y}, function(result_window){
                 gContentWindow = result_window;
                 chrome.tabs.query({'url':content_url}, function(results){
                 console.log('==> send bookmark to new opened window');
@@ -135,6 +137,12 @@ function messageHandler(request, sender, sendResponse){
         console.log('<== expected bookmark with tags and notes');
         parser_url = sprintf('https://www.readability.com/api/content/v1/parser?url=%s&token=%s',
                                 escape(request.url), '1164eaff0a68f11e7474de98f03c34fc8acf258c');
+
+        if(request.old_parentId){
+            chrome.bookmarks.move(request.id, {parentId:request.parentId}, function(result){
+                console.log(result);
+            });
+        }
 
         raw_tags = request.tags.split(",");
         tags = [];
