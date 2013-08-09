@@ -25,6 +25,24 @@ Bookmark Spell is a chrome extension, is an idea of bookmark based automator:
 3. Integrate readability parser API to get full text
 4. Insert to Dropbox
 
+### ScreenShots
+
+####Step1: Command+D
+
+<img src='doc/step1.png' width=70%/>
+
+####Step2: 
+<img src='doc/step2.png' width=70%/>
+
+####Step3: Check recent bookmarks
+<img src='doc/step3.png' width=70%/>
+
+####Step4: 
+<img src='doc/step4.png' width=70%/>
+
+####Step5: 
+<img src='doc/step5.png' width=70%/>
+
 ### Todo List
 
 * Download folder
