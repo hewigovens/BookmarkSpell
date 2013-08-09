@@ -24,6 +24,10 @@ body {
     width: 100%; 
 }
 
+.fui-cross {
+    font-size: 10px;
+    margin-left: 10px;
+}
 
 .bookmark {
     margin-left: 20px;

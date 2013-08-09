@@ -6,7 +6,7 @@ function DisplayBookmarks(bookmarks){
     });
 
     $.each(bookmarks, function(index, object){
-        var bookmark = $('<li class="bookmark"></li>');
+        var bookmark = $(sprintf('<li class="bookmark" id="li%s"></li>', object.chrome_id));
         bookmark.append($(sprintf('<a id="url" href="%s" title="%s">from %s</a>', 
             object.url, object.title, object.domain)));
         var reading_time = parseInt(object.word_count/120);
@@ -15,6 +15,16 @@ function DisplayBookmarks(bookmarks){
         }
 
         bookmark.append($(sprintf('<span id="reading_time" class="reading-time">%d min read</span>', reading_time)));
+        var remove_button = $(sprintf('<span id="%s" class="fui-cross"></span>', object.chrome_id));
+        remove_button.on('click', function(sender){
+            $('#li'+sender.target.id).hide();
+            console.log(sender.target.id);
+            chrome.tabs.getCurrent(function(tab){
+                console.log('==> query bookmarks form backgroud.js');
+                chrome.runtime.sendMessage({action:'removeBookmark', remove_id: sender.target.id, from:document.URL, from_tab_id:tab.id});
+            });
+        });
+        bookmark.append(remove_button);
         bookmark.append($(sprintf('<h2><a id="title" href="%s" title="%s">%s</a></h2>', 
             object.url, object.title, object.title)));
         

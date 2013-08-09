@@ -93,7 +93,7 @@ function bookmarkChanged(id, bookmark){
 }
 
 function bookmarkRemoved(id, bookmark){
-    console.log('<== bookmark removed');
+    console.log('<== bookmark removed callback');
     console.log(bookmark);
     console.log(id);
     var folders = JSON.parse(localStorage.getItem('BookmarkBarFolders'));
@@ -104,12 +104,7 @@ function bookmarkRemoved(id, bookmark){
         return;
     };
     if (gDataStore) {
-        var bookmarkTable = gDataStore.getTable('bookmarks');
-        var results = bookmarkTable.query({chrome_id:sprintf("%s_%s", bookmark.parentId, id)});
-        $.each(results, function(index, object){
-            console.log(object);
-            object.deleteRecord();
-        });
+        removeBookmarkFromDB(sprintf("%s_%s", bookmark.parentId, id));
     }
 }
 
@@ -196,6 +191,8 @@ function messageHandler(request, sender, sendResponse){
             chrome.tabs.sendMessage(request.from_tab_id, bookmarks, function(response){
                 console.log('<== get response: ' + response);
             });
+        } else if (request.action === 'removeBookmark') {
+            removeBookmarkFromDB(request.remove_id);
         }
     }
 }
@@ -208,6 +205,15 @@ function windowRemoved(window_id) {
             gContentTab = undefined;
         }
     }
+}
+
+function removeBookmarkFromDB(id){
+    var bookmarkTable = gDataStore.getTable('bookmarks');
+    var results = bookmarkTable.query({chrome_id:id});
+    $.each(results, function(index, object){
+        console.log('==> remove from dropbox datastore:',object);
+        object.deleteRecord();
+    });
 }
 
 function DBDataStoreChanged(){
