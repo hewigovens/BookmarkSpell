@@ -50,7 +50,7 @@ function bookmarkCreated(id, bookmark){
         var bookmarkTable = gDataStore.getTable('bookmarks');
 
         var results = bookmarkTable.query({url:bookmark.url});
-        if (results.length == 0) {
+        if (results.length != 0) {
             return;
         }
     }
