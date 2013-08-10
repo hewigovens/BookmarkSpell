@@ -51,10 +51,10 @@ Bookmark Spell is a chrome extension, is an idea of bookmark based automator:
 * Hosted App to provide search functionally
 * Mobile client
 
-### Credit
+### Credits
 
-* Flat UI Kit
-* sprintf.js
-* SwitchySharp style
-* Mou.app style
-* [iconfinder.com](https://www.iconfinder.com/icondetails/111113/256/book_bookmark_icon)
+* [Flat UI Kit](http://designmodo.github.io/Flat-UI/)
+* [sprintf.js](http://www.diveintojavascript.com/projects/javascript-sprintf)
+* [SwitchySharp](https://code.google.com/p/switchysharp/source/browse/assets/styles/popup.css) Popup style
+* [Mou](http://mouapp.com/) Blockquotes style
+* Icon from [http://www.wpzoom.com](http://www.wpzoom.com/wpzoom/new-freebie-wpzoom-developer-icon-set-154-free-icons/)
