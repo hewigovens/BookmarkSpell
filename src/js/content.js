@@ -26,7 +26,7 @@ chrome.runtime.onMessage.addListener(
         $('#submit_button').on('click', function() {
             console.log(message);('send tags/note back to background');
 
-            message.tags = $('#tags').val();
+            message.tags = $('#tags').val().replace(/[， ]/gi,',');
             message.notes = $('#notes').val();
 
             message.from = document.URL;

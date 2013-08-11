@@ -35,6 +35,7 @@ function extensionInstalled(details){
                 chrome.bookmarks.create(archive_folder, function(result){
                     localStorage.setItem('ArchiveFolderId', result.id);
                     console.log('Archive id: ' + result.id);
+                    updateBookmarkBarFolders();
                 });
             }
         });
@@ -59,12 +60,12 @@ function bookmarkCreated(id, bookmark){
     if (folders[bookmark.parentId]) {
         console.log('spell added!');
         var x = screen.width/2 - 516/2;
-        var y = screen.height/2 - 476/2;
+        var y = screen.height/2 - 496/2;
 
         if (gContentWindow === undefined) {
             console.log('==> create content window');
             content_url = chrome.extension.getURL('content.html');
-            chrome.windows.create({url:content_url,type:'popup', width:516, height:476, left:x, top:y}, function(result_window){
+            chrome.windows.create({url:content_url,type:'popup', width:516, height:496, left:x, top:y}, function(result_window){
                 gContentWindow = result_window;
                 chrome.tabs.query({'url':content_url}, function(results){
                 console.log('==> send bookmark to new opened window');
