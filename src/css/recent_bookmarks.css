@@ -23,6 +23,16 @@ blockquote p {
 body { 
     width: 100%; 
 }
+.span3{
+    float: right;
+}
+.todo-search {
+    margin-top: 10px;
+    margin-right: 10px;
+    background: #D6DBCD;
+    height: 12px;
+    padding: 5px 10px 25px 10px;
+}
 
 .fui-cross {
     font-size: 10px;
@@ -31,6 +41,10 @@ body {
 
 .bookmark {
     margin-left: 20px;
+}
+
+#tagstats{
+    margin-top: 20px;
 }
 
 #bookmarks {

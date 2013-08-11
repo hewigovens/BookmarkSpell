@@ -1,10 +1,4 @@
 function DisplayBookmarks(bookmarks){
-
-    var old_bookmarks = $('li');
-    $.each(old_bookmarks, function(index, object){
-      object.remove();
-    });
-
     $.each(bookmarks, function(index, object){
         var bookmark = $(sprintf('<li class="bookmark" id="li%s"></li>', object.chrome_id));
         bookmark.append($(sprintf('<a id="url" href="%s" title="%s">from %s</a>', 
@@ -89,6 +83,17 @@ function DisplayBookmarks(bookmarks){
     });
 }
 
+function DisplayTagstats(){
+    var tag_stats = JSON.parse(localStorage.getItem('RecentTagStats'));
+    var ul = $('#tagstats');
+    $.each(tag_stats, function(key, value){
+        ul.append($(sprintf('<li>%s (%d)</li>',key,value.length)));
+    });
+    $('#input_tag_filter').bind("enterKey",function(event){
+        console.log(this.val());
+    });
+}
+
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse){
       if (sender.url === document.URL) {
@@ -97,12 +102,9 @@ chrome.runtime.onMessage.addListener(
       }
       console.log(request);
       DisplayBookmarks(request);
+      DisplayTagstats();
       sendResponse('recent_bookmars page received bookmarks');
 });
-
-// setTimeout(function(){
-//    DisplayBookmarks(JSON.parse(localStorage.getItem('RecentBookmarks'))); 
-// },2000);
 
 $(document).on('ready', function(){
     console.log('==> document.ready');

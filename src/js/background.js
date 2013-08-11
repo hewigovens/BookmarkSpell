@@ -239,13 +239,26 @@ function updateRecentBookmarks(){
     //XXXXXX limit to 20
     var results = bookmarkTable.query();
     var bookmarks = [];
+    var tag_stats = {};
     $.each(results, function(index, object){
         var bookmark = object.getFields();
         if (bookmark.url) {
             bookmarks.unshift(bookmark);
         }
+        if (bookmark.tags) {
+            var tags = bookmark.tags.split(',');
+            $.each(tags, function(index, tag){
+                var key = tag.trim();
+                if (tag_stats[key]) {
+                    tag_stats[key].push(bookmark.chrome_id);
+                } else {
+                    tag_stats[key] = [bookmark.chrome_id];
+                }
+            });
+        }
     });
     localStorage.setItem('RecentBookmarks', JSON.stringify(bookmarks));
+    localStorage.setItem('RecentTagStats', JSON.stringify(tag_stats));
 }
 
 function updateBookmarkBarFolders() {
