@@ -27,6 +27,8 @@ Bookmark Spell is a chrome extension, is an idea of bookmark based automator:
 
 ### ScreenShots
 
+####Step0: Install from [here](https://chrome.google.com/webstore/detail/hgimfomnnbecdjlndbhkcblaeoegpafn)
+
 ####Step1: Command+D
 
 <img src='doc/step1.png' width=70%/>
