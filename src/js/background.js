@@ -48,10 +48,21 @@ function bookmarkCreated(id, bookmark){
     if (bookmark.url == undefined) {
         return;
     } else {
+        //bookmark id is uniq within profile
+        var chrome_id = sprintf('%s_%s', bookmark.parentId, bookmark.id);
         var bookmarkTable = gDataStore.getTable('bookmarks');
-
         var results = bookmarkTable.query({url:bookmark.url});
         if (results.length != 0) {
+            $.each(results, function(index, record){
+                var chrome_ids = record.getFields().chrome_id.split(',');
+                if ($.inArray(chrome_id, chrome_ids) == -1) {
+                    chrome_ids.push(chrome_id);
+                    record.update({chrome_id:chrome_ids.toString()});
+                    return false;
+                } else {
+                    return false;
+                }
+            });
             return;
         }
     }
@@ -204,8 +215,11 @@ function messageHandler(request, sender, sendResponse){
                 console.log('<== get response: ' + response);
             });
         } else if (request.action === 'removeBookmark') {
-            var ids = request.remove_id.split('_');
-            chrome.bookmarks.remove(ids[1]);
+            removeBookmarkFromDB(request.remove_id);
+            $.each(request.remove_id.split(','), function(index, chrome_id){
+                var ids = chrome_id.split('_');
+                chrome.bookmarks.remove(ids[1]);
+            });
         }
     }
 }
