@@ -37,11 +37,18 @@ function DisplayBookmarks(bookmarks){
                 more.on('click', function(){
                     var content = bookmark.find('.content');
                     content.toggle();
+                    if (content.is(':visible')) {
+                        more.text(' collapse');
+                    } else{
+                        more.text(' read more');
+                    }
                 });
                 excerpt.append(more);
 
                 bookmark.append(excerpt);
-                bookmark.append($(sprintf('<div class="content" hidden>%s<div class="clearfix"></div></div>', object.content)));
+
+                var content = $(sprintf('<div class="content" hidden>%s<div class="clearfix"></div></div>', object.content));
+                bookmark.append(content);
 
             } else {
                 bookmark.append(excerpt);
