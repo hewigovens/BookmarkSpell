@@ -62,7 +62,7 @@ function DisplayBookmarks(bookmarks){
         var tags = object.tags.split(',');
         var tag_container = $('<div id="tags" class="tagsinput" style="height: 100%;"></div>');
         $.each(tags, function(index, tag){
-            var tag_item = $(sprintf('<span class="tag">%s </span>', tag));
+            var tag_item = $(sprintf('<span class="tag">%s </span>', tag.trim()));
             tag_item.on('click', function(){
                 console.log('tag clickd:',tag);
                 var all_tag = $('.tagsinput');
@@ -83,14 +83,59 @@ function DisplayBookmarks(bookmarks){
     });
 }
 
+function FilterBookmarkByTag(tag){
+    console.log('==> only display bookmarks with tag:',tag);
+    if (tag === '') {
+        $('.bookmark').show();
+        return;
+    };
+    var tag_stats = JSON.parse(localStorage.getItem('RecentTagStats'));
+    $('.bookmark').hide();
+    $.each(tag_stats, function(key, value){
+        if (key === tag) {
+            $.each(value, function(index, chrome_id){
+                if (chrome_id) {
+                    $('#li'+chrome_id).show();
+                }
+            });
+        }
+    });
+}
+
 function DisplayTagstats(){
     var tag_stats = JSON.parse(localStorage.getItem('RecentTagStats'));
     var ul = $('#tagstats');
+    var all = 0;
     $.each(tag_stats, function(key, value){
-        ul.append($(sprintf('<li>%s (%d)</li>',key,value.length)));
+        all += value.length;
+        var a = $(sprintf('<a class="tag_sidebar">%s</a>',key));
+        var li = $('<li></li>');
+
+        a.on('click',function(){
+            FilterBookmarkByTag(this.innerText);
+        });
+
+        li.append(a);
+        li.append($(sprintf('<a class="tag_sidebar"> (%d)</a>',value.length)));
+        ul.append(li);
     });
-    $('#input_tag_filter').bind("enterKey",function(event){
-        console.log(this.val());
+
+    var a = $('<a class="tag_sidebar">all</a>');
+    var li = $('<li></li>');
+
+    a.on('click',function(){
+        FilterBookmarkByTag('');
+    });
+
+    li.append(a);
+    li.append($(sprintf('<a class="tag_sidebar"> (%d)</a>',all)));
+    ul.prepend(li);
+
+    $('#input_tag_filter').keypress(function(event){
+        //enter key
+        if (event.which == 13) {
+            FilterBookmarkByTag($('#input_tag_filter').val());
+        }
     });
 }
 
@@ -100,7 +145,6 @@ chrome.runtime.onMessage.addListener(
           console.log("==> pass message sent by self");
           return;
       }
-      console.log(request);
       DisplayBookmarks(request);
       DisplayTagstats();
       sendResponse('recent_bookmars page received bookmarks');

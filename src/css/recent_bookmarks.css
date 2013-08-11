@@ -28,17 +28,23 @@ body {
 }
 .todo-search {
     margin-top: 10px;
-    margin-right: 10px;
+    margin-right: 20px;
     background: #D6DBCD;
     height: 12px;
     padding: 5px 10px 25px 10px;
+}
+.read_more{
+    text-decoration: none;
+}
+.tag_sidebar{
+    cursor: pointer;
+    text-decoration: none;
 }
 
 .fui-cross {
     font-size: 10px;
     margin-left: 10px;
 }
-
 .bookmark {
     margin-left: 20px;
 }
