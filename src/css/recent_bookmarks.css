@@ -49,6 +49,11 @@ body {
     margin-left: 20px;
 }
 
+.tag {
+    background: #f5f5f5 !important;
+    color: #999 !important;
+}
+
 #tagstats{
     margin-top: 20px;
 }
