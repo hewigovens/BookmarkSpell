@@ -57,28 +57,32 @@ function DisplayBookmarks(bookmarks){
             }
         }
         
-        bookmark.append($(sprintf('<blockquote><p>%s</p></blockquote>', object.notes)));
+        if (object.notes) {
+            bookmark.append($(sprintf('<blockquote><p>%s</p></blockquote>', object.notes)));
+        }
         
-        var tags = object.tags.split(',');
-        var tag_container = $('<div id="tags" class="tagsinput" style="height: 100%;"></div>');
-        $.each(tags, function(index, tag){
-            var tag_item = $(sprintf('<span class="tag">%s </span>', tag.trim()));
-            tag_item.on('click', function(){
-                console.log('tag clickd:',tag);
-                var all_tag = $('.tagsinput');
-                $.each(all_tag, function(index, object){
-                    var li = $(object.parentNode);
-                    var div = $(object);
-                    if ($.inArray(tag, div.text().trim().split(" ")) == -1) {
-                        li.hide();
-                    }
+        if (object.tags) {
+            var tags = object.tags.split(',');
+            var tag_container = $('<div id="tags" class="tagsinput" style="height: 100%;"></div>');
+            $.each(tags, function(index, tag){
+                var tag_item = $(sprintf('<span class="tag">%s </span>', tag.trim()));
+                tag_item.on('click', function(){
+                    console.log('tag clickd:',tag);
+                    var all_tag = $('.tagsinput');
+                    $.each(all_tag, function(index, object){
+                        var li = $(object.parentNode);
+                        var div = $(object);
+                        if ($.inArray(tag, div.text().trim().split(" ")) == -1) {
+                            li.hide();
+                        }
+                    });
                 });
+                tag_container.append(tag_item);
             });
-            tag_container.append(tag_item);
-        });
-        bookmark.append(tag_container);
-        bookmark.append($('<hr>'));
+            bookmark.append(tag_container);
+        }
 
+        bookmark.append($('<hr>'));
         $('#bookmarks').append(bookmark);
     });
 }
