@@ -3,3 +3,5 @@
 .project
 *.swp
 *.swo
+build/
+tool/BookmarkSpell.pem
