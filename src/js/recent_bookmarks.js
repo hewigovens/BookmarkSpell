@@ -1,8 +1,14 @@
 function DisplayBookmarks(bookmarks){
     $.each(bookmarks, function(index, object){
         var bookmark = $(sprintf('<li class="bookmark" id="li%s"></li>', object.chrome_id));
-        bookmark.append($(sprintf('<a id="url" href="%s" title="%s">from %s</a>', 
+        bookmark.append($(sprintf('<small>from<a id="url" href="%s" title="%s"> %s</a></small>', 
             object.url, object.title, object.domain)));
+
+        if (object.short_url) {
+            bookmark.append($(sprintf('<small>switch to<a id="short_url" href="%s" title="%s"> %s</a></small>', 
+                object.short_url, object.short_url, 'readbility view')));            
+        };
+
         var reading_time = parseInt(object.word_count/120);
         if (reading_time == 0 || isNaN(reading_time)) {
             reading_time = 1;

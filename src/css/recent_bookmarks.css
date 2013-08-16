@@ -23,6 +23,11 @@ blockquote p {
 body { 
     width: 100%; 
 }
+
+small {
+    margin-left: 7px;
+}
+
 .span3{
     float: right;
 }
