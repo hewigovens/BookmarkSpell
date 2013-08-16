@@ -13,7 +13,7 @@ blockquote:before {
     color:#eee;
 }
 blockquote p {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 300;
     line-height: 18px;
     margin-bottom: 0;
@@ -74,6 +74,7 @@ small {
 
 #reading_time {
     margin-left: 10px;
+    font-size: 12px;
 }
 
 #notes_container {
