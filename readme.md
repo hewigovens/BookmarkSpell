@@ -34,10 +34,10 @@ Bookmark Spell is a chrome extension, is an idea of bookmark based automator:
 <img src='doc/step1.png' width=70%/>
 
 ####Step2: 
-<img src='doc/step2.png' width=70%/>
+<img src='doc/step2.png' width=50%/>
 
 ####Step3: Check recent bookmarks
-<img src='doc/step3.png' width=70%/>
+<img src='doc/step3.png' width=50%/>
 
 ####Step4: 
 <img src='doc/step4.png' width=70%/>
