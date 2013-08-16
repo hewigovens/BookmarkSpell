@@ -94,7 +94,7 @@ function DisplayBookmarks(bookmarks){
 }
 
 function FilterBookmarkByTag(tag){
-    console.log('==> only display bookmarks with tag:',tag);
+    console.log(sprintf('==> only display bookmarks with tag:#%s#',tag));
     if (tag === '') {
         $('.bookmark').show();
         return;
@@ -105,11 +105,23 @@ function FilterBookmarkByTag(tag){
         if (key === tag) {
             $.each(value, function(index, chrome_id){
                 if (chrome_id) {
-                    $('#li'+chrome_id).show();
+                    //$('#li'+chrome_id).show();
+                    ShowHideElementById('li'+chrome_id);
                 }
             });
         }
     });
+}
+
+function ShowHideElementById(id){
+    var e = document.getElementById(id);
+
+    if (e.style.display === "block"){
+        e.style.display = "none";
+    }
+    else{
+        e.style.display = "block";
+    }
 }
 
 function DisplayTagstats(){
