@@ -13,7 +13,7 @@ function searchClicked() {
 
 function helpClicked() {
     console.log('help clicked');
-    window.close();
+    chrome.tabs.create({url:'https://github.com/hewigovens/BookmarkSpell/'}, function(tab){console.log(tab);});
 }
 
 window.addEventListener('load', function(){

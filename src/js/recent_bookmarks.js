@@ -105,8 +105,8 @@ function FilterBookmarkByTag(tag){
         if (key === tag) {
             $.each(value, function(index, chrome_id){
                 if (chrome_id) {
-                    //$('#li'+chrome_id).show();
-                    ShowHideElementById('li'+chrome_id);
+                    $('#li'+chrome_id.replace(/,/g,'\\,')).show();
+                    //ShowHideElementById('li'+chrome_id);
                 }
             });
         }
