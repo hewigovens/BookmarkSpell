@@ -23,7 +23,7 @@ Bookmark Spell is a chrome extension, is an idea of bookmark based automator:
 2. Check bookmark.parentId is Archive folder
 3. Show a popup to fill your tags/notes
 3. Integrate readability parser API to get full text
-4. Insert to Dropbox
+4. Insert to Dropbox(Actually -> [https://www.dropbox.com/developers/apps/datastores](https://www.dropbox.com/developers/apps/datastores))
 
 ### ScreenShots
 
