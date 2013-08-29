@@ -7,13 +7,19 @@
 </head>
 <body>
     <span class="span3">
-    <div class="todo-search">
-        <input id="input_tag_filter" class="todo-search-field" type="search" value="" placeholder="Filter Tag">
-    </div>
-    <ul id="tagstats">
-    </ul>
+        <div class="todo-search">
+            <input id="input_tag_filter" class="todo-search-field" type="search" value="" placeholder="Filter Tag">
+        </div>
+        <ul id="tagstats"></ul>
     </span>
     <ul id="bookmarks"></ul>
+    <div class="pagination">
+        <ul>
+          <li class="previous"><a class="fui-arrow-left"></a></li>
+          <li class="active pageindicator"><a>1</a></li>
+          <li class="next"><a class="fui-arrow-right"></a></li>
+        </ul>
+    </div>
     <script src="js/lib/jquery-2.0.3.min.js"></script>
     <script src="js/lib/sprintf.min.js"></script>
     <script src="js/recent_bookmarks.js"></script>

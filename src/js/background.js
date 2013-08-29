@@ -113,6 +113,20 @@ function bookmarkChanged(id, bookmark){
     });
 }
 
+function bookmarkMoved(id, moveInfo){
+    console.log(id, moveInfo);
+    //update dropbox chrome_id
+    var bookmarkTable = gDataStore.getTable('bookmarks');
+    chrome.bookmarks.get(id, function(results){
+        $.each(results, function(index, bookmark){
+            records = bookmarkTable.query({url:bookmark.url});
+            $.each(records, function(index, record){
+                record.update({chrome_id:sprintf('%s_%s',moveInfo.parentId, id)});
+            });
+        });
+    });
+}
+
 function bookmarkRemoved(id, bookmark){
     console.log('<== bookmark removed callback');
     console.log(bookmark);
@@ -297,6 +311,7 @@ function registerEvents() {
     chrome.bookmarks.onCreated.addListener(bookmarkCreated);
     chrome.bookmarks.onChanged.addListener(bookmarkChanged);
     chrome.bookmarks.onRemoved.addListener(bookmarkRemoved);
+    chrome.bookmarks.onMoved.addListener(bookmarkMoved);
 
     // Window event
 

@@ -28,6 +28,12 @@ small {
     margin-left: 7px;
 }
 
+.pagination{
+    margin-top: 5px;
+    margin-left: 45%;
+    display: none;
+}
+
 .span3{
     float: right;
 }

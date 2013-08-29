@@ -1,6 +1,6 @@
 {
   "name": "BookmarkSpell",
-  "version": "0.4.11",
+  "version": "0.5.0",
   "description": "Save a bookmark and wait for magic happens. :)",
 
   "background": {

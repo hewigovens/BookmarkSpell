@@ -1,4 +1,6 @@
 function DisplayBookmarks(bookmarks){
+    $('#bookmarks').empty();
+
     $.each(bookmarks, function(index, object){
         var bookmark = $(sprintf('<li class="bookmark" id="li%s"></li>', object.chrome_id));
         bookmark.append($(sprintf('<small>from<a id="url" href="%s" title="%s"> %s</a></small>', 
@@ -90,7 +92,56 @@ function DisplayBookmarks(bookmarks){
 
         bookmark.append($('<hr>'));
         $('#bookmarks').append(bookmark);
+
+        //only display one page 0~19
+        if (index == 19) {
+            return false;
+        };
     });
+
+    if (bookmarks.length >20) {
+        var pages = Math.ceil(bookmarks.length/20);
+        for (var i = 2; i <= pages; i++) {
+            $(sprintf('<li class="pageindicator"><a>%d</a></li>', i)).insertBefore('.next');
+        };
+
+        $('.next').on('click', function(sender){
+            var current_page = parseInt($('.active')[0].firstChild.innerText);
+            var next_page = Math.min(current_page + 1, pages);
+            var active = $('.active').next();
+            DisplayBookmarksByPage(bookmarks, current_page, next_page, active);
+        });
+
+        $('.previous').on('click', function(sender){
+            var current_page = parseInt($('.active')[0].firstChild.innerText);
+            var previous_page = Math.max(current_page - 1, 1);
+            var active = $('.active').prev();
+            DisplayBookmarksByPage(bookmarks, current_page, previous_page, active);
+        });
+
+        $('.pageindicator').on('click', function(sender){
+            var current_page = parseInt($('.active')[0].firstChild.innerText);
+            var clicked_page = parseInt(sender.target.firstChild.nodeValue);
+            DisplayBookmarksByPage(bookmarks, current_page, clicked_page, null);
+            $(sender.target).parent().addClass('active');
+        });
+
+        $('.pagination').toggle();
+    };
+}
+
+function DisplayBookmarksByPage(bookmarks, current_page, next_page, active_element) {
+    if (current_page == next_page) {
+        return;
+    } else{
+        var start_index = (current_page - 1)*19 + 1;
+        var end_index = Math.min(start_index + 20, bookmarks.length);
+        DisplayBookmarks(bookmarks.slice(start_index, end_index));
+        $('.pageindicator').removeClass('active');
+        if (active_element) {
+            active_element.addClass('active');
+        };
+    }
 }
 
 function FilterBookmarkByTag(tag){
