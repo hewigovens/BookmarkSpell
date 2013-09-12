@@ -134,8 +134,8 @@ function DisplayBookmarksByPage(bookmarks, current_page, next_page, active_eleme
     if (current_page == next_page) {
         return;
     } else{
-        var start_index = (next_page - 1)*19 + 1;
-        var end_index = Math.min(start_index + 20, bookmarks.length);
+        var start_index = (next_page - 1)*19;
+        var end_index = Math.min(start_index + 19, bookmarks.length);
         DisplayBookmarks(bookmarks.slice(start_index, end_index));
         $('.pageindicator').removeClass('active');
         if (active_element) {
