@@ -1,5 +1,10 @@
 // Main
 
+function SelectOption(parentId, title){
+    $('.filter-option').text(title);
+    $('select[name=folder_list]').val(parentId);
+}
+
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse){
         console.log('==> content.js onMessage');
@@ -12,16 +17,22 @@ chrome.runtime.onMessage.addListener(
 
         $('#title').text(message.title);
         $('#url').text(message.url);
-        var options = $('#folder_select option');
 
-        $.each(options, function(index, option){
-            if (option.value === request.parentId) {
-                console.log(sprintf('set %s %s selected', option.value, option.text));
-                $('.filter-option').text(option.text);
-                $('select[name=folder_list]').val(option.value);
-                return false;
-            };
-        });
+        var bar_folders = JSON.parse(localStorage.getItem('BookmarkBarFolders'));
+        if (bar_folders[request.parentId]) {
+            console.log(sprintf('set %s %s selected', bar_folders[request.parentId], request.parentId));
+            SelectOption(request.parentId, bar_folders[request.parentId]);
+        } else {
+            chrome.bookmarks.get(request.parentId, function(results){
+                if (results.length != 0) {
+                    var result = results[0];
+                    var new_option = $(sprintf('<option value=%s>%s</option>', request.parentId, result.title));
+                    $('#folder_select').append(new_option);
+
+                    SelectOption(request.parentId, result.title);
+                }
+            });
+        }
 
         $('#submit_button').on('click', function() {
             console.log(message);('send tags/note back to background');
@@ -34,7 +45,6 @@ chrome.runtime.onMessage.addListener(
                 message.old_parentId = message.parentId;
                 message.parentId = $('select[name=folder_list]').val();
             }
-
             chrome.runtime.sendMessage(message);
 
             window.close();

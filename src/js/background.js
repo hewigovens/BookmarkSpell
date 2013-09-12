@@ -52,6 +52,8 @@ function bookmarkCreated(id, bookmark){
         var chrome_id = sprintf('%s_%s', bookmark.parentId, bookmark.id);
         var bookmarkTable = gDataStore.getTable('bookmarks');
         var results = bookmarkTable.query({url:bookmark.url});
+
+        //if existed in Dropbox, update bookmark id
         if (results.length != 0) {
             $.each(results, function(index, record){
                 var chrome_ids = record.getFields().chrome_id.split(',');
@@ -64,39 +66,37 @@ function bookmarkCreated(id, bookmark){
                 }
             });
             return;
-        }
-    }
-
-    var folders = JSON.parse(localStorage.getItem('BookmarkBarFolders'));
-    if (folders[bookmark.parentId]) {
-        console.log('spell added!');
-        var x = screen.width/2 - 516/2;
-        var y = screen.height/2 - 496/2;
-
-        if (gContentWindow === undefined) {
-            console.log('==> create content window');
-            content_url = chrome.extension.getURL('content.html');
-            chrome.windows.create({url:content_url,type:'popup', width:516, height:496, left:x, top:y}, function(result_window){
-                gContentWindow = result_window;
-                chrome.tabs.query({'url':content_url}, function(results){
-                console.log('==> send bookmark to new opened window');
-                console.log(results)
-                if (results.length !== 0) {
-                            gContentTab = results[0];
-                            chrome.tabs.sendMessage(results[0].id, bookmark, function(response){
-                            console.log('==> get response from new opened window');
-                            console.log(response);
-                        });
-                    }
-                });
-            });
         } else {
-            console.log('==> set content window to focus');
-            chrome.windows.update(gContentWindow.id, {focused: true});
-            chrome.tabs.sendMessage(gContentTab.id, bookmark, function(response){
-                console.log('==> get response from content window');
-                console.log(response);
-            });
+
+                console.log('spell added!');
+                var x = screen.width/2 - 516/2;
+                var y = screen.height/2 - 496/2;
+
+                if (gContentWindow === undefined) {
+                    console.log('==> create content window');
+                    content_url = chrome.extension.getURL('content.html');
+                    chrome.windows.create({url:content_url,type:'popup', width:516, height:496, left:x, top:y}, function(result_window){
+                        gContentWindow = result_window;
+                        chrome.tabs.query({'url':content_url}, function(results){
+                        console.log('==> send bookmark to new opened window');
+                        console.log(results)
+                        if (results.length !== 0) {
+                                    gContentTab = results[0];
+                                    chrome.tabs.sendMessage(results[0].id, bookmark, function(response){
+                                    console.log('==> get response from new opened window');
+                                    console.log(response);
+                                });
+                            }
+                        });
+                    });
+                } else {
+                    console.log('==> set content window to focus');
+                    chrome.windows.update(gContentWindow.id, {focused: true});
+                    chrome.tabs.sendMessage(gContentTab.id, bookmark, function(response){
+                        console.log('==> get response from content window');
+                        console.log(response);
+                    });
+                }
         }
     }
 }
@@ -138,9 +138,6 @@ function bookmarkRemoved(id, bookmark){
         localStorage.setItem('BookmarkBarFolders', JSON.stringify(folders));
         return;
     };
-    if (gDataStore) {
-        removeBookmarkFromDB(sprintf("%s_%s", bookmark.parentId, id));
-    }
 }
 
 function showDesktopNotification(message){
