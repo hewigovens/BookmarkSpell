@@ -47,6 +47,8 @@ function bookmarkCreated(id, bookmark){
     console.log(bookmark);
     if (bookmark.url == undefined) {
         return;
+    } else if (bookmark.url.match("javascript")){
+        return;
     } else {
         //bookmark id is uniq within profile
         var chrome_id = sprintf('%s_%s', bookmark.parentId, bookmark.id);
