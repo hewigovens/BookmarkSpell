@@ -1,7 +1,5 @@
 // global variable
 
-var gContentWindow = undefined;
-var gContentTab = undefined;
 var gDBClient = undefined;
 var gDataStore = undefined;
 
@@ -70,35 +68,25 @@ function bookmarkCreated(id, bookmark){
             return;
         } else {
 
-                console.log('spell added!');
-                var x = screen.width/2 - 516/2;
-                var y = screen.height/2 - 496/2;
+            console.log('spell added!');
+            var x = screen.width/2 - 516/2;
+            var y = screen.height/2 - 496/2;
 
-                if (gContentWindow === undefined) {
-                    console.log('==> create content window');
-                    content_url = chrome.extension.getURL('content.html');
-                    chrome.windows.create({url:content_url,type:'popup', width:516, height:496, left:x, top:y}, function(result_window){
-                        gContentWindow = result_window;
-                        chrome.tabs.query({'url':content_url}, function(results){
-                        console.log('==> send bookmark to new opened window');
-                        console.log(results)
-                        if (results.length !== 0) {
-                                    gContentTab = results[0];
-                                    chrome.tabs.sendMessage(results[0].id, bookmark, function(response){
-                                    console.log('==> get response from new opened window');
-                                    console.log(response);
-                                });
-                            }
-                        });
-                    });
-                } else {
-                    console.log('==> set content window to focus');
-                    chrome.windows.update(gContentWindow.id, {focused: true});
-                    chrome.tabs.sendMessage(gContentTab.id, bookmark, function(response){
-                        console.log('==> get response from content window');
+
+            console.log('==> create content window');
+            content_url = sprintf("%s?bookmark=%s",chrome.extension.getURL('content.html'), bookmark.id);
+            chrome.windows.create({url:content_url,type:'popup', width:516, height:496, left:x, top:y}, function(result_window){
+                chrome.tabs.query({'url':content_url}, function(results){
+                console.log('==> send bookmark to new opened window');
+                console.log(results)
+                if (results.length !== 0) {
+                        chrome.tabs.sendMessage(results[0].id, bookmark, function(response){
+                        console.log('==> get response from new opened window');
                         console.log(response);
-                    });
-                }
+                        });
+                    }
+                });
+            });
         }
     }
 }
@@ -162,7 +150,7 @@ function messageHandler(request, sender, sendResponse){
     console.log('<== handle message from: ' + request.from);
     console.log(request);
     // receive bookmark with tags/notes
-    if (request.from === chrome.extension.getURL('content.html')) {
+    if (request.from.match(chrome.extension.getURL('content.html'))) {
         console.log('<== expected bookmark with tags and notes');
         parser_url = sprintf('https://www.readability.com/api/content/v1/parser?url=%s&token=%s',
                                 escape(request.url), '1164eaff0a68f11e7474de98f03c34fc8acf258c');
@@ -238,13 +226,7 @@ function messageHandler(request, sender, sendResponse){
 }
 
 function windowRemoved(window_id) {
-    if (gContentWindow) {
-        if (window_id == gContentWindow.id) {
-            console.log('<== content window closed');
-            gContentWindow = undefined;
-            gContentTab = undefined;
-        }
-    }
+    console.log('<== content window closed:',window_id);
 }
 
 function removeBookmarkFromDB(id){
