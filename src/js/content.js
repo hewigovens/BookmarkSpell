@@ -15,6 +15,13 @@ chrome.runtime.onMessage.addListener(
         var message = request;
         console.log(sprintf('==> receive bookmark %s:%s', message.title, message.url));
 
+        if (message.title === undefined && message.url === undefined) {
+            chrome.windows.getCurrent(function(window){
+                chrome.windows.remove(window.id);
+                return;
+            });
+        }
+
         $('#title').text(message.title);
         $('#url').text(message.url);
 
