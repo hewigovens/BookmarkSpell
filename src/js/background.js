@@ -2,6 +2,7 @@
 
 var gDBClient = undefined;
 var gDataStore = undefined;
+var gAppKey = 'APP_KEY_PLACEHOLDER';
 
 // functions
 
@@ -307,7 +308,7 @@ function setup() {
     
     updateBookmarkBarFolders();
 
-    gDBClient = new Dropbox.Client({'key': 'pgx3960nqyh983j'});
+    gDBClient = new Dropbox.Client({'key': gAppKey});
     gDBClient.authDriver(new Dropbox.AuthDriver.Chrome());
 
     credentials = localStorage.getItem('DropboxOAuth');
