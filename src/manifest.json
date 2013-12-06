@@ -1,6 +1,6 @@
 {
   "name": "BookmarkSpell",
-  "version": "0.5.7",
+  "version": "0.5.8",
   "description": "Save a bookmark and wait for magic happens. :)",
 
   "background": {
@@ -30,7 +30,8 @@
   ],
   
   "web_accessible_resources": [
-      "img/icon48.png"
+      "img/icon48.png",
+      "chrome_oauth_receiver.html"
     ],
 
   "manifest_version": 2

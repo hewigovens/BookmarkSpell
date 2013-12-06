@@ -6,4 +6,4 @@
 build/
 tool/BookmarkSpell.pem
 .appkey
-.bak
+*.bak
