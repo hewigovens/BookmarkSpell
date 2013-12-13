@@ -1,5 +1,7 @@
 ### What is Bookmark Spell?
 
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/hewigovens/bookmarkspell/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
 Bookmark Spell is a chrome extension, is an idea of bookmark based automator:
 
 	Input: -> url/bookmark 
