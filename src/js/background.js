@@ -208,7 +208,23 @@ function messageHandler(request, sender, sendResponse){
             var action_page = chrome.extension.getURL(request.action_page);
             chrome.tabs.create({url:action_page}, function(tab){
             });
-        } 
+        } else if (request.action === 'noteForPage') {
+            console.log('==> handle noteForPage');
+            chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
+                console.log(tabs);
+                 if (tabs.length) {
+                    var table = gDataStore.getTable('bookmarks');
+                    var tab = tabs[0];
+                    var results = table.query({url: tab.url});
+                    if (results.length) {
+                        var result = results[0];
+                        var notes = result.get('notes');
+                        console.log(notes);
+                        alert(notes);
+                    };
+                }
+            });
+        }
     } else if (request.from === chrome.extension.getURL('recent_bookmarks.html')) {
         console.log('<== expected loadBookmarks');
         if (request.action === 'loadBookmarks') {

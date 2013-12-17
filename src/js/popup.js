@@ -16,9 +16,16 @@ function helpClicked() {
     chrome.tabs.create({url:'https://github.com/hewigovens/BookmarkSpell/'}, function(tab){console.log(tab);});
 }
 
+function viewNotesClicked() {
+    console.log('notes for page clicked');
+    chrome.runtime.sendMessage({action:'noteForPage', from: document.URL});
+    window.close();
+}
+
 window.addEventListener('load', function(){
     document.getElementById('recent_bookmarks').onclick = recentClicked;
     document.getElementById('hosted_app').onclick = searchClicked;
     document.getElementById('help').onclick = helpClicked;
+    document.getElementById('notes_for_page').onclick = viewNotesClicked;
 }, false);
 
