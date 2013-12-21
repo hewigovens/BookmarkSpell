@@ -25,8 +25,7 @@
     "tabs",
     "storage",
     "notifications",
-    "*://*.dropbox.com/*",
-    "*://*.readability.com/*"
+    "*://*/*"
   ],
   
   "web_accessible_resources": [

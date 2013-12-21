@@ -220,7 +220,7 @@ function messageHandler(request, sender, sendResponse){
                         var result = results[0];
                         var notes = result.get('notes');
                         console.log(notes);
-                        alert(notes);
+                        insertNotesBox(tab.id, notes);
                     };
                 }
             });
@@ -240,6 +240,36 @@ function messageHandler(request, sender, sendResponse){
             });
         }
     }
+}
+
+function insertNotesBox(tab_id, notes) {
+    chrome.tabs.insertCSS(tab_id, {file: 'css/note_box.css'});
+    var insert_js = sprintf('var note_box_id = "bookmarkspell_note_box"; \
+        if (document.getElementById(note_box_id)) { \
+            document.getElementById(note_box_id).style.display = "block"; \
+            return; \
+        } \
+        var note_box_close_id = "bookmarkspell_note_box_close"; \
+        var note_box_close = document.createElement("a"); \
+        note_box_close.id =  note_box_close_id; \
+        note_box_close.className = note_box_close_id; \
+        note_box_close.textContent = "X"; \
+        note_box_close.onclick = function(){ \
+            console.log(note_box_id); \
+            var e = document.getElementById(note_box_id); \
+            console.log(e); \
+            e.style.display = "none"; \
+            return; \
+        }; \
+        var note_box = document.createElement("div"); \
+        note_box.id = note_box_id; \
+        note_box.className = note_box_id; \
+        var blockquote = document.createElement("blockquote"); \
+        blockquote.textContent = "%s"; \
+        note_box.appendChild(note_box_close); \
+        note_box.appendChild(blockquote); \
+        document.body.insertBefore(note_box,document.body.childNodes[0]);', notes);
+    chrome.tabs.executeScript(tab_id, {code: insert_js});
 }
 
 function windowRemoved(window_id) {
