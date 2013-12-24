@@ -44,6 +44,8 @@ chrome.runtime.onMessage.addListener(
         $('#submit_button').on('click', function() {
             console.log(message);('send tags/note back to background');
 
+            message.title = $('#title').text();
+            message.url = $('#url').text();
             message.tags = $('#tags').val().replace(/[， ]/gi,',');
             message.notes = $('#notes').val();
 
@@ -68,4 +70,9 @@ $(document).on('ready', function(){
         select.append($(sprintf('<option value="%s">%s</option>', folder, folders[folder])));
     }
     $("select[name='folder_list']").selectpicker({style: 'btn-default', menuStyle: 'dropdown-inverse'});
+    $('.edit').editable(function(value){
+        return(value);
+    }, {
+        onblur: 'submit'
+    });
 });
