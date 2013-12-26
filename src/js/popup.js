@@ -22,10 +22,16 @@ function viewNotesClicked() {
     window.close();
 }
 
+function viewDatastoreClicked () {
+    console.log('browser_datastore');
+    chrome.tabs.create({url:'https://www.dropbox.com/developers/browse_datastores/297439'});
+}
+
 window.addEventListener('load', function(){
     document.getElementById('recent_bookmarks').onclick = recentClicked;
     document.getElementById('hosted_app').onclick = searchClicked;
     document.getElementById('help').onclick = helpClicked;
     document.getElementById('notes_for_page').onclick = viewNotesClicked;
+    document.getElementById('browser_datastore').onclick = viewDatastoreClicked;
 }, false);
 
