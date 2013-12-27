@@ -5,6 +5,13 @@ function SelectOption(parentId, title){
     $('select[name=folder_list]').val(parentId);
 }
 
+function AdjustWindowSize(){
+
+    var w = $('body').width();
+    var h = $('#content_container').height() + $('#submit_button').height() *2;
+    window.resizeTo(w,h);
+}
+
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse){
         console.log('==> content.js onMessage');
@@ -57,7 +64,9 @@ chrome.runtime.onMessage.addListener(
             chrome.runtime.sendMessage(message);
 
             window.close();
-        });  
+        });
+
+        AdjustWindowSize();
         sendResponse('==> bookmark message received.');
     }
 );
