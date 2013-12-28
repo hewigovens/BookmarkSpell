@@ -147,13 +147,22 @@ function loadRecentBookmarks(){
     return JSON.parse(localStorage.getItem('RecentBookmarks'))
 }
 
+function generateRecordId(){
+
+    // h1388239943503_mxducy
+    var prefix = 'h';
+    var timestamp = new Date().getTime();
+    var suffix = Math.random().toString(36).substr(2,6);
+    return sprintf("%s%d_%s", prefix, timestamp, suffix);
+}
+
 function messageHandler(request, sender, sendResponse){
     console.log('<== handle message from: ' + request.from);
     console.log(request);
     // receive bookmark with tags/notes
     if (request.from.match(chrome.extension.getURL('content.html'))) {
         console.log('<== expected bookmark with tags and notes');
-        parser_url = sprintf('https://www.readability.com/api/content/v1/parser?url=%s&token=%s',
+        var parser_url = sprintf('https://www.readability.com/api/content/v1/parser?url=%s&token=%s',
                                 escape(request.url), '1164eaff0a68f11e7474de98f03c34fc8acf258c');
 
         if(request.old_parentId){
@@ -162,24 +171,37 @@ function messageHandler(request, sender, sendResponse){
             });
         }
 
-        raw_tags = request.tags.split(",");
-        tags = [];
+        var raw_tags = request.tags.split(",");
+        var tags = [];
+
+        // Dropbox Maximum record size
+        var isTooLarge = false;
+        var largeLimit = 100*1024;
         $.each(raw_tags, function(index, value){
             tags.push(value.trim());
         });
         message = {
+            id: generateRecordId(),
             title: request.title,
             url: request.url,
             tags: tags.toString(),
             notes: request.notes,
             date_added: request.dateAdded,
+            added_by: "bookmarkspell_chrome",
             chrome_id: sprintf("%s_%s", request.parentId, request.id)
         };
 
         $.getJSON(parser_url).done(function(data) {
             message.short_url = data.short_url;
             message.excerpt = data.excerpt;
-            message.content = data.content;
+            if(data.content.length > largeLimit){
+                // too large, use excerpt
+                message.content = data.excerpt;
+                isTooLarge = true;
+            } else{
+                message.content = data.content;
+            }
+            
             message.domain = data.domain;
             message.word_count = data.word_count;
             if (data.author) {
@@ -194,7 +216,12 @@ function messageHandler(request, sender, sendResponse){
                 var bookmarkTable = gDataStore.getTable('bookmarks');
                 bookmarkTable.insert(message);
                 if (message.short_url) {
-                    showDesktopNotification('Archived successfully.');
+
+                    var tip = 'Archived successfully.';
+                    if (isTooLarge) {
+                        tip += " But not full text content";
+                    };
+                    showDesktopNotification(tip);
                 } else {
                     showDesktopNotification('Archived without readability...');
                 }
@@ -234,7 +261,7 @@ function messageHandler(request, sender, sendResponse){
             });
         } else if (request.action === 'removeBookmark') {
             removeBookmarkFromDB(request.remove_id);
-            $.each(request.remove_id.split(','), function(index, chrome_id){
+            $.each(request.remove_chrome_id.split(','), function(index, chrome_id){
                 var ids = chrome_id.split('_');
                 chrome.bookmarks.remove(ids[1]);
             });
@@ -278,7 +305,7 @@ function windowRemoved(window_id) {
 
 function removeBookmarkFromDB(id){
     var bookmarkTable = gDataStore.getTable('bookmarks');
-    var results = bookmarkTable.query({chrome_id:id});
+    var results = bookmarkTable.query({id:id});
     $.each(results, function(index, object){
         console.log('==> remove from dropbox datastore:',object);
         object.deleteRecord();
@@ -298,6 +325,10 @@ function updateRecentBookmarks(){
     var tag_stats = {};
     $.each(results, function(index, object){
         var bookmark = object.getFields();
+        if (!bookmark.id) {
+            //if not set id, use dropbox record internal id
+            bookmark.id = object.getId();
+        }
         if (bookmark.url) {
             bookmarks.unshift(bookmark);
         }
@@ -311,6 +342,18 @@ function updateRecentBookmarks(){
                     tag_stats[key] = [bookmark.chrome_id];
                 }
             });
+        }
+    });
+
+    bookmarks = bookmarks.sort(function(a, b){
+        //compatible records create by other datastore SDK
+        //so we need to sort by date_added, what a pain
+        if (b.date_added < a.date_added) {
+            return -1;
+        } else if(b.date_added > a.date_added){
+            return 1;
+        } else{
+            return 0;
         }
     });
     localStorage.setItem('RecentBookmarks', JSON.stringify(bookmarks));

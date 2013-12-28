@@ -53,7 +53,7 @@ chrome.runtime.onMessage.addListener(
 
             message.title = $('#title').text();
             message.url = $('#url').text();
-            message.tags = $('#tags').val().replace(/[， ]/gi,',');
+            message.tags = $('#tags').val().replace(/[，\\s]/gi,',');
             message.notes = $('#notes').val();
 
             message.from = document.URL;
