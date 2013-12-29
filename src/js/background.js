@@ -328,6 +328,7 @@ function updateRecentBookmarks(){
         if (!bookmark.id) {
             //if not set id, use dropbox record internal id
             bookmark.id = object.getId();
+            object.update({id:object.getId()});
         }
         if (bookmark.url) {
             bookmarks.unshift(bookmark);
