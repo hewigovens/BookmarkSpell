@@ -12,6 +12,12 @@ function AdjustWindowSize(){
     window.resizeTo(w,h);
 }
 
+function normalizeTags(tags){
+    var tags_array = tags.replace(/[，\s]/gi,',').split(',');
+    tags_array = tags_array.filter(function(e){return e;});
+    return tags_array.join(',');
+}
+
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse){
         console.log('==> content.js onMessage');
@@ -53,7 +59,7 @@ chrome.runtime.onMessage.addListener(
 
             message.title = $('#title').text();
             message.url = $('#url').text();
-            message.tags = $('#tags').val().replace(/[，\\s]/gi,',');
+            message.tags = normalizeTags($('#tags').val());
             message.notes = $('#notes').val();
 
             message.from = document.URL;

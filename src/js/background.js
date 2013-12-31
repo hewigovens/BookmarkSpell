@@ -2,7 +2,7 @@
 
 var gDBClient = undefined;
 var gDataStore = undefined;
-var gAppKey = 'APP_KEY_PLACEHOLDER';
+var gAppKey = 'pgx3960nqyh983j';
 
 // functions
 
