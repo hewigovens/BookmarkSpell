@@ -65,6 +65,10 @@ small {
     color: #999 !important;
 }
 
+.clearfix{
+    height:1px;
+}
+
 #tagstats{
     margin-top: 20px;
 }
