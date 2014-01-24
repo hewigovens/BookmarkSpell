@@ -6,4 +6,9 @@ $(document).on('ready', function(){
         var filename = sprintf('BookmarkSpell_dump_%d.json', parseInt(today.getTime()/1000));
         saveAs(blob, filename);
     });
+    $('#link_button').on('click', function(){
+        chrome.runtime.sendMessage({action:'manualLink', from: document.URL}, function(message){
+            alert(message);
+        });
+    });
 });
