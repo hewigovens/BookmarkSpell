@@ -1,15 +1,13 @@
-### What is Bookmark Spell?
+### What is BookmarkSpell?
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/hewigovens/bookmarkspell/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
-Bookmark Spell is a chrome extension, is an idea of bookmark based automator:
+BookmarkSpell is a lightweight, bookmark based knowledge management system, including:
 
-	Input: -> url/bookmark 
-		   -> under different folder
-		   -> take different actions:
-		   		-> Archive, add tags/notes/full text for your bookmark
-		   		-> Download, download and sync to your dropbox folder
-		   		-> Tweet, send a tweet!
+* **A Chrome extension** <==(this repo)
+* Android App (devloping)
+* iOS App (developing)
+* Website
 
 ### Why not delicious/Pocket/Readability/etc…?
 
@@ -18,42 +16,45 @@ Bookmark Spell is a chrome extension, is an idea of bookmark based automator:
 * Intuitive, just hit Command+D
 
 
-### How it works(take Archive as example)
+you can install from [Chrome Web Store](https://chrome.google.com/webstore/detail/hgimfomnnbecdjlndbhkcblaeoegpafn), if you have any comments please drop me a [email](mailto:hewigoven@gmail.com).
 
-1. OAuth Dropbox for datastore
+### How it works
+
+1. OAuth Dropbox for datastore access
 1. Listen to `chrome.bookmarks.onCreated`
-2. Check bookmark.parentId is Archive folder
 3. Show a popup to fill your tags/notes
 3. Integrate readability parser API to get full text
-4. Insert to Dropbox(Actually -> [https://www.dropbox.com/developers/apps/datastores](https://www.dropbox.com/developers/apps/datastores))
+4. Add to Dropbox datastore(Actually -> [https://www.dropbox.com/developers/apps/datastores](https://www.dropbox.com/developers/apps/datastores))
 
-### ScreenShots
+### Build
 
-####Step0: Install from [here](https://chrome.google.com/webstore/detail/hgimfomnnbecdjlndbhkcblaeoegpafn)
+	./build.sh
 
-####Step1: Command+D
+### Some screenshots
+
+####Add tags/notes (Command+D or Click star icon on address bar)
 
 <img src='doc/step1.png' width=70%/>
 
-####Step2: 
+####Desktop notifications
 <img src='doc/step2.png' width=50%/>
 
-####Step3: Check recent bookmarks
+####Popup menu
 <img src='doc/step3.png' width=50%/>
 
-####Step4: 
+####Show notes for this page
+<img src='doc/step3.1.png' width=50%/>
+
+####Recent added bookmarks
 <img src='doc/step4.png' width=70%/>
 
-####Step5: 
+####Full Text
 <img src='doc/step5.png' width=70%/>
 
 ### Todo List
 
-* Download folder
-* Tweet folder
-* Configurable as option page
-* Hosted App to provide search functionally
-* Mobile client
+* Better options page.
+* Full text search.
 
 ### Credits
 
