@@ -4,7 +4,7 @@ var gDBClient = undefined;
 var gDataStore = undefined;
 var gAppKey = 'pgx3960nqyh983j';
 
-// functions
+// event callbacks
 
 function extensionInstalled(details){
 	if (details.reason === 'install'){
@@ -131,126 +131,39 @@ function bookmarkRemoved(id, bookmark){
     };
 }
 
-function showDesktopNotification(message){
-    if (window.webkitNotifications) {
-            var notification = webkitNotifications.createNotification('img/icon48.png','BookmarkSpell',message);
-            notification.show();
-            setTimeout(function(){
-                notification.cancel();
-            },2000);
-    } else {
-        console.log(message);
-    }
+function DBDataStoreChanged(){
+    console.log("<== dropbox datastore changed, update localStorage");
+    updateRecentBookmarks();
 }
 
-function loadRecentBookmarks(){
-    return JSON.parse(localStorage.getItem('RecentBookmarks'))
+function windowRemoved(window_id) {
+    console.log('<== content window closed:',window_id);
 }
 
-function generateRecordId(){
+// message handle functions
 
-    // h1388239943503_mxducy
-    var prefix = 'h';
-    var timestamp = new Date().getTime();
-    var suffix = Math.random().toString(36).substr(2,6);
-    return sprintf("%s%d_%s", prefix, timestamp, suffix);
-}
-
-function messageHandler(request, sender, sendResponse){
+function dispatchMessages(request, sender, sendResponse){
     console.log('<== handle message from: ' + request.from);
     console.log(request);
-    // receive bookmark with tags/notes
     if (request.from.match(chrome.extension.getURL('content.html'))) {
         console.log('<== expected bookmark with tags and notes');
-        var parser_url = sprintf('https://www.readability.com/api/content/v1/parser?url=%s&token=%s',
-                                escape(request.url), '1164eaff0a68f11e7474de98f03c34fc8acf258c');
-
-        if(request.old_parentId){
-            chrome.bookmarks.move(request.id, {parentId:request.parentId}, function(result){
-                console.log(result);
-            });
-        }
-
-        var raw_tags = request.tags.split(",");
-        var tags = [];
-
-        // Dropbox Maximum record size
-        var isTooLarge = false;
-        var largeLimit = 100*1024;
-        $.each(raw_tags, function(index, value){
-            tags.push(value.trim());
-        });
-        message = {
-            id: generateRecordId(),
-            title: request.title,
-            url: request.url,
-            tags: tags.toString(),
-            notes: request.notes,
-            date_added: request.dateAdded,
-            added_by: "bookmarkspell_chrome",
-            chrome_id: sprintf("%s_%s", request.parentId, request.id)
-        };
-
-        $.getJSON(parser_url).done(function(data) {
-            message.short_url = data.short_url;
-            message.excerpt = data.excerpt;
-            if(data.content.length > largeLimit){
-                // too large, use excerpt
-                message.content = data.excerpt;
-                isTooLarge = true;
-            } else{
-                message.content = data.content;
-            }
-            
-            message.domain = data.domain;
-            message.word_count = data.word_count;
-            if (data.author) {
-                message.author = data.author;
-            }
-        }).fail(function(){
-            console.log('==> call readability parser API failed');
-            var a = document.createElement('a');
-            message.domain = a.host;
-        }).always(function(){
-            if (gDataStore) {
-                var bookmarkTable = gDataStore.getTable('bookmarks');
-                bookmarkTable.insert(message);
-                if (message.short_url) {
-
-                    var tip = 'Archived successfully.';
-                    if (isTooLarge) {
-                        tip += " But not full text content";
-                    };
-                    showDesktopNotification(tip);
-                } else {
-                    showDesktopNotification('Archived without readability...');
-                }
-            } else {
-                console.log('==> datastore is not ready!');
-                showDesktopNotification('Archive failed, Dropbox datastore is not ready.');
-            }
-        });
+        // receive bookmark with tags/notes
+        handleNewBookmarkAction(request);
     } else if (request.from === chrome.extension.getURL('popup.html')) {
         if (request.action_page) {
+            // open recent bookmark page
             var action_page = chrome.extension.getURL(request.action_page);
             chrome.tabs.create({url:action_page}, function(tab){
             });
         } else if (request.action === 'noteForPage') {
             console.log('==> handle noteForPage');
-            chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
-                console.log(tabs);
-                 if (tabs.length) {
-                    var table = gDataStore.getTable('bookmarks');
-                    var tab = tabs[0];
-                    var results = table.query({url: tab.url});
-                    if (results.length) {
-                        var result = results[0];
-                        var notes = result.get('notes');
-                        console.log(notes);
-                        insertNotesBox(tab.id, notes);
-                    };
-                }
-            });
+            handleNoteForPageAction();
+        } else if (request.action === 'manualSync') {
+            console.log('==> close datastore');
+            if (gDataStore) {
+                gDataStore.close();
+                openDefaultDatastore();
+            }
         }
     } else if (request.from === chrome.extension.getURL('recent_bookmarks.html')) {
         console.log('<== expected loadBookmarks');
@@ -266,8 +179,105 @@ function messageHandler(request, sender, sendResponse){
                 chrome.bookmarks.remove(ids[1]);
             });
         }
+    } else if (request.from === chrome.extension.getURL('options.html')){
+        if (request.action === 'manualLink'){
+            if(!gDBClient.isAuthenticated()){
+                setup();
+            } else{
+                sendResponse("Already Linked");
+            }
+        }
     }
 }
+
+function handleNoteForPageAction(){
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
+        console.log(tabs);
+         if (tabs.length) {
+            var table = gDataStore.getTable('bookmarks');
+            var tab = tabs[0];
+            var results = table.query({url: tab.url});
+            if (results.length) {
+                var result = results[0];
+                var notes = result.get('notes');
+                console.log(notes);
+                insertNotesBox(tab.id, notes);
+            };
+        }});
+}
+
+function handleNewBookmarkAction(request){
+    var parser_url = sprintf('https://www.readability.com/api/content/v1/parser?url=%s&token=%s',
+                                escape(request.url), '1164eaff0a68f11e7474de98f03c34fc8acf258c');
+
+    if(request.old_parentId){
+        chrome.bookmarks.move(request.id, {parentId:request.parentId}, function(result){
+            console.log(result);
+        });
+    }
+
+    var raw_tags = request.tags.split(",");
+    var tags = [];
+
+    // Dropbox Maximum record size
+    var isTooLarge = false;
+    var largeLimit = 100*1024;
+    $.each(raw_tags, function(index, value){
+        tags.push(value.trim());
+    });
+    message = {
+        id: generateRecordId(),
+        title: request.title,
+        url: request.url,
+        tags: tags.toString(),
+        notes: request.notes,
+        date_added: request.dateAdded,
+        added_by: "bookmarkspell_chrome",
+        chrome_id: sprintf("%s_%s", request.parentId, request.id)
+    };
+
+    $.getJSON(parser_url).done(function(data) {
+        message.short_url = data.short_url;
+        message.excerpt = data.excerpt;
+        if(data.content.length > largeLimit){
+            // too large, use excerpt
+            message.content = data.excerpt;
+            isTooLarge = true;
+        } else{
+            message.content = data.content;
+        }
+        
+        message.domain = data.domain;
+        message.word_count = data.word_count;
+        if (data.author) {
+            message.author = data.author;
+        }
+    }).fail(function(){
+        console.log('==> call readability parser API failed');
+        var a = document.createElement('a');
+        message.domain = a.host;
+    }).always(function(){
+        if (gDataStore) {
+            var bookmarkTable = gDataStore.getTable('bookmarks');
+            bookmarkTable.insert(message);
+            if (message.short_url) {
+
+                var tip = 'Archived successfully.';
+                if (isTooLarge) {
+                    tip += " But not full text content";
+                };
+                showDesktopNotification(tip);
+            } else {
+                showDesktopNotification('Archived without readability...');
+            }
+        } else {
+            console.log('==> datastore is not ready!');
+            showDesktopNotification('Archive failed, Dropbox datastore is not ready.');
+        }
+    });
+}
+
+// internal helper functions
 
 function insertNotesBox(tab_id, notes) {
     chrome.tabs.insertCSS(tab_id, {file: 'css/note_box.css'});
@@ -299,10 +309,6 @@ function insertNotesBox(tab_id, notes) {
     chrome.tabs.executeScript(tab_id, {code: insert_js});
 }
 
-function windowRemoved(window_id) {
-    console.log('<== content window closed:',window_id);
-}
-
 function removeBookmarkFromDB(id){
     var bookmarkTable = gDataStore.getTable('bookmarks');
     var results = bookmarkTable.query({id:id});
@@ -310,11 +316,6 @@ function removeBookmarkFromDB(id){
         console.log('==> remove from dropbox datastore:',object);
         object.deleteRecord();
     });
-}
-
-function DBDataStoreChanged(){
-    console.log("<== dropbox datastore changed, update localStorage");
-    updateRecentBookmarks();
 }
 
 function updateRecentBookmarks(){
@@ -374,6 +375,45 @@ function updateBookmarkBarFolders() {
     });
 }
 
+function loadRecentBookmarks(){
+    return JSON.parse(localStorage.getItem('RecentBookmarks'))
+}
+
+function generateRecordId(){
+
+    // h1388239943503_mxducy
+    var prefix = 'h';
+    var timestamp = new Date().getTime();
+    var suffix = Math.random().toString(36).substr(2,6);
+    return sprintf("%s%d_%s", prefix, timestamp, suffix);
+}
+
+function openDefaultDatastore(){
+
+    console.log('==> open default datastore');
+    var datastoreManager = gDBClient.getDatastoreManager ();
+    datastoreManager.openDefaultDatastore(function(error, datastore){
+    if (error) {
+        console.log('==> open dropbox datastore failed:' + error);
+    } else {
+        gDataStore = datastore;
+        gDataStore.recordsChanged.addListener(DBDataStoreChanged);
+        updateRecentBookmarks();
+    }});
+}
+
+function showDesktopNotification(message){
+    if (window.webkitNotifications) {
+            var notification = webkitNotifications.createNotification('img/icon48.png','BookmarkSpell',message);
+            notification.show();
+            setTimeout(function(){
+                notification.cancel();
+            },2000);
+    } else {
+        console.log(message);
+    }
+}
+
 function registerEvents() {
 
     // Install event
@@ -390,7 +430,7 @@ function registerEvents() {
     chrome.windows.onRemoved.addListener(windowRemoved);
 
     // Message Passing
-    chrome.runtime.onMessage.addListener(messageHandler);
+    chrome.runtime.onMessage.addListener(dispatchMessages);
 }
 
 function setup() {
@@ -407,15 +447,7 @@ function setup() {
     }
     if (gDBClient.isAuthenticated()) {
         console.log('==> dropbox authenticated');
-        var datastoreManager = gDBClient.getDatastoreManager ();
-        datastoreManager.openDefaultDatastore(function(error, datastore){
-        if (error) {
-            console.log('==> open dropbox datastore failed:' + error);
-        } else {
-            gDataStore = datastore;
-            gDataStore.recordsChanged.addListener(DBDataStoreChanged);
-            updateRecentBookmarks();
-        }});
+        openDefaultDatastore();
 
     } else {
         console.log('==> try authenticate dropbox');
@@ -425,15 +457,7 @@ function setup() {
                 return;
             } else {
                 localStorage.setItem('DropboxOAuth', JSON.stringify(client.credentials()));
-                var datastoreManager = gDBClient.getDatastoreManager ();
-                datastoreManager.openDefaultDatastore(function(error, datastore){
-                if (error) {
-                    console.log('==> open dropbox datastore failed:' + error);
-                } else {
-                    gDataStore = datastore;
-                    gDataStore.recordsChanged.addListener(DBDataStoreChanged);
-                    updateRecentBookmarks();
-                }});
+                openDefaultDatastore();
             }
         });
     }
