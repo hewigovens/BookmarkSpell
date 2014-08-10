@@ -396,6 +396,7 @@ function openDefaultDatastore(){
     if (error) {
         console.log('==> open dropbox datastore failed:' + error);
     } else {
+        console.log('==> default datastore:' + datastore);
         gDataStore = datastore;
         gDataStore.recordsChanged.addListener(DBDataStoreChanged);
         updateRecentBookmarks();
@@ -403,15 +404,15 @@ function openDefaultDatastore(){
 }
 
 function showDesktopNotification(message){
-    if (window.webkitNotifications) {
-            var notification = webkitNotifications.createNotification('img/icon48.png','BookmarkSpell',message);
-            notification.show();
-            setTimeout(function(){
-                notification.cancel();
-            },2000);
-    } else {
-        console.log(message);
-    }
+
+    var id = Math.floor(Math.random() * 9007199254740992) + 1;
+    chrome.notifications.create(id.toString(), {
+        'type' : 'basic',
+        'title': 'BookmarkSpell',
+        'message': message,
+        'iconUrl': 'img/icon48.png'}, function(){
+            console.log('notification sent: ' + message);
+        });
 }
 
 function registerEvents() {
@@ -435,11 +436,10 @@ function registerEvents() {
 
 function setup() {
 
-    
     updateBookmarkBarFolders();
 
     gDBClient = new Dropbox.Client({'key': gAppKey});
-    gDBClient.authDriver(new Dropbox.AuthDriver.Chrome());
+    gDBClient.authDriver(new Dropbox.AuthDriver.ChromeExtension());
 
     credentials = localStorage.getItem('DropboxOAuth');
     if (credentials) {

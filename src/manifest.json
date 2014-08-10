@@ -1,6 +1,6 @@
 {
   "name": "BookmarkSpell",
-  "version": "0.6.5",
+  "version": "0.6.6",
   "description": "Save a bookmark and wait for magic happens. :)",
 
   "background": {
@@ -33,5 +33,6 @@
       "chrome_oauth_receiver.html"
     ],
 
+  "content_security_policy": "script-src 'self' https://www.dropbox.com; object-src 'self'",
   "manifest_version": 2
 }
